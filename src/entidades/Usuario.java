@@ -17,13 +17,14 @@ public abstract class Usuario {
         return nome;
     }
 
-    public Usuario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome) {
+    public Usuario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome, Endereco endereco) {
         this.cpf = cpf;
         this.telefone = telefone;
         this.dataDeCadastro = LocalDateTime.now(ZoneId.systemDefault());
         this.dataDeNascimento = dataDeNascimento;
         this.email = email;
         this.nome = nome;
+        this.endereco = endereco;
         this.ativo = true;
     }
 }

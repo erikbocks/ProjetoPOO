@@ -2,22 +2,31 @@ package entidades;
 
 public class Endereco {
     private String rua;
-    private String numero;
+    private int numero;
     private String complemento;
     private String cidade;
     private Estado estado;
 
+    public Endereco(String rua, int numero, String complemento, String cidade, Estado estadoEnum) {
+        this.rua = rua;
+        this.numero = numero;
+        this.complemento = complemento;
+        this.cidade = cidade;
+        this.estado = estadoEnum;
+    }
+
     public enum Estado {
-        SC();
+        SC,
+        RS;
+    }
 
-        public Estado procurarPorSigla(String sigla) {
-            for(Estado es : Estado.values()) {
-                if(es.name().equalsIgnoreCase(sigla)) {
-                    return es;
-                }
+    public static Estado procurarEstadoPorSigla(String sigla) {
+        for (Estado es : Estado.values()) {
+            if (es.name().equalsIgnoreCase(sigla)) {
+                return es;
             }
-
-            throw new IllegalArgumentException("Nenhuma estado encontrado para a sigla: " + sigla);
         }
+
+        return null;
     }
 }

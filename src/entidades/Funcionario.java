@@ -5,13 +5,9 @@ import java.time.LocalDateTime;
 public class Funcionario extends Usuario {
     private String senha;
 
-    public Funcionario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome, String senha) {
-        super(cpf, telefone, dataDeNascimento, email, nome);
+    public Funcionario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome, String senha, Endereco endereco) {
+        super(cpf, telefone, dataDeNascimento, email, nome, endereco);
         this.senha = senha;
-    }
-
-    public boolean autenticar(String senhaDigitada) {
-        return this.senha.equals(senhaDigitada);
     }
 
     @Override

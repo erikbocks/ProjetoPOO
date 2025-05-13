@@ -1,3 +1,4 @@
+import entidades.Endereco;
 import entidades.Funcionario;
 import servicos.Leitor;
 import validadores.Validador;
@@ -53,12 +54,33 @@ public class Principal {
         String nome = leitor.lerString("Digite o nome do funcionário");
         String email = leitor.lerString("Digite o email do funcionário");
         String senha = obterSenha();
+        Endereco endereco = obterEndereco();
 
-        Funcionario novoFuncionario = new Funcionario(cpf, celular, dataDeNascimento, email, nome, senha);
+        Funcionario novoFuncionario = new Funcionario(cpf, celular, dataDeNascimento, email, nome, senha, endereco);
         funcionarios.add(novoFuncionario);
 
         System.out.println("Funcionário " + novoFuncionario.getNome() + " cadastrado com sucesso!");
         System.out.println(novoFuncionario);
+    }
+
+    private static Endereco obterEndereco() {
+        System.out.println("Digite o endereço:");
+        while (true) {
+            String estado = leitor.lerString("Digite o estado (sigla)");
+            Endereco.Estado estadoEnum = Endereco.procurarEstadoPorSigla(estado);
+
+            if (estadoEnum == null) {
+                System.err.println("Estado não encontrado. Tente novamente.");
+                continue;
+            }
+
+            String cidade = leitor.lerString("Digite a cidade");
+            String rua = leitor.lerString("Digite a rua");
+            int numero = leitor.lerInt("Digite o número");
+            String complemento = leitor.lerString("Digite o complemento");
+
+            return new Endereco(rua, numero, complemento, cidade, estadoEnum);
+        }
     }
 
     private static String obterSenha() {
@@ -66,7 +88,6 @@ public class Principal {
             String senha = leitor.lerString("Digite a senha do funcionário");
             String segundaSenha = leitor.lerString("Digite novamente");
             if (!validador.senhaValida(senha, segundaSenha)) {
-                System.err.println("As senhas não coincidem. Tente novamente.");
                 continue;
             }
             return senha;
@@ -77,7 +98,6 @@ public class Principal {
         while (true) {
             String cpf = leitor.lerString("Digite o CPF (somente números)");
             if (!validador.validarCPF(cpf)) {
-                System.err.println("CPF inválido. Tente novamente.");
                 continue;
             }
             return cpf;
@@ -88,7 +108,6 @@ public class Principal {
         while (true) {
             String celular = leitor.lerString("Digite o celular (DDD + 9 + numero");
             if (!validador.validarCelular(celular)) {
-                System.err.println("Celular inválido. Tente novamente.");
                 continue;
             }
             return celular;
@@ -96,14 +115,13 @@ public class Principal {
     }
 
     private static LocalDateTime obterData() {
-        System.out.println("Digite a data");
+        System.out.println("Digite a data:");
         while (true) {
             int dia = leitor.lerInt("Dia");
             int mes = leitor.lerInt("Mês");
             int ano = leitor.lerInt("Ano");
 
             if (!validador.dataValida(dia, mes, ano)) {
-                System.err.println("Data inválida. Tente novamente.");
                 continue;
             }
 

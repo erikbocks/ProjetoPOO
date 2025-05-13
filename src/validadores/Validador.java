@@ -76,7 +76,13 @@ public class Validador {
     }
 
     public boolean senhaValida(String senha, String segundaSenha) {
-        return senha.equals(segundaSenha);
+        boolean valido = senha.equals(segundaSenha);
+
+        if(!valido) {
+            System.err.println("As senhas não coincidem. Tente novamente.");
+        }
+
+        return valido;
     }
 }
 
