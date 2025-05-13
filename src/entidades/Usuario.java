@@ -11,6 +11,11 @@ public abstract class Usuario {
     protected String email;
     protected String nome;
     protected Endereco endereco;
+    protected Boolean ativo;
+
+    public String getNome() {
+        return nome;
+    }
 
     public Usuario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome) {
         this.cpf = cpf;
@@ -19,5 +24,6 @@ public abstract class Usuario {
         this.dataDeNascimento = dataDeNascimento;
         this.email = email;
         this.nome = nome;
+        this.ativo = true;
     }
 }

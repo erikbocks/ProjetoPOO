@@ -52,12 +52,25 @@ public class Principal {
         LocalDateTime dataDeNascimento = obterData();
         String nome = leitor.lerString("Digite o nome do funcionário");
         String email = leitor.lerString("Digite o email do funcionário");
+        String senha = obterSenha();
 
-        Funcionario novoFuncionario = new Funcionario(cpf, celular, dataDeNascimento, email, nome);
+        Funcionario novoFuncionario = new Funcionario(cpf, celular, dataDeNascimento, email, nome, senha);
         funcionarios.add(novoFuncionario);
 
-        System.out.println("Funcionário cadastrado com sucesso!");
+        System.out.println("Funcionário " + novoFuncionario.getNome() + " cadastrado com sucesso!");
         System.out.println(novoFuncionario);
+    }
+
+    private static String obterSenha() {
+        while (true) {
+            String senha = leitor.lerString("Digite a senha do funcionário");
+            String segundaSenha = leitor.lerString("Digite novamente");
+            if (!validador.senhaValida(senha, segundaSenha)) {
+                System.err.println("As senhas não coincidem. Tente novamente.");
+                continue;
+            }
+            return senha;
+        }
     }
 
     private static String obterCPF() {

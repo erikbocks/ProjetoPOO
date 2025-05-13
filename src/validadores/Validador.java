@@ -74,5 +74,9 @@ public class Validador {
 
         return true;
     }
+
+    public boolean senhaValida(String senha, String segundaSenha) {
+        return senha.equals(segundaSenha);
+    }
 }
 
