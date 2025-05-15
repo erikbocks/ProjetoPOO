@@ -1,8 +1,13 @@
 package servicos;
 
+import entidades.Endereco;
+import validadores.Validador;
+
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Leitor {
+    private final Validador validador = new Validador();
     
     private final Scanner scanner = new Scanner(System.in);
     
@@ -82,6 +87,72 @@ public class Leitor {
             } else {
                 System.err.println("Erro: Entrada inválida. Por favor, digite true/false, sim/nao ou s/n.");
             }
+        }
+    }
+
+    public Endereco lerEndereco() {
+        System.out.println("Digite o endereço:");
+        while (true) {
+            String estado = lerString("Digite o estado (sigla)");
+            Endereco.Estado estadoEnum = Endereco.procurarEstadoPorSigla(estado);
+
+            if (estadoEnum == null) {
+                System.err.println("Estado não encontrado. Tente novamente.");
+                continue;
+            }
+
+            String cidade = lerString("Digite a cidade");
+            String rua = lerString("Digite a rua");
+            int numero = lerInt("Digite o número");
+            String complemento = lerString("Digite o complemento");
+
+            return new Endereco(rua, numero, complemento, cidade, estadoEnum);
+        }
+    }
+
+    public String lerSenha() {
+        while (true) {
+            String senha = lerString("Digite a senha do funcionário");
+            String segundaSenha = lerString("Digite novamente");
+            if (!validador.senhaValida(senha, segundaSenha)) {
+                continue;
+            }
+            return senha;
+        }
+    }
+
+    public String lerCPF() {
+        while (true) {
+            String cpf = lerString("Digite o CPF (somente números)");
+            if (!validador.validarCPF(cpf)) {
+                continue;
+            }
+            return cpf;
+        }
+    }
+
+    public String lerCelular() {
+        while (true) {
+            String celular = lerString("Digite o celular (DDD + 9 + numero");
+            if (!validador.validarCelular(celular)) {
+                continue;
+            }
+            return celular;
+        }
+    }
+
+    public LocalDateTime lerData() {
+        System.out.println("Digite a data:");
+        while (true) {
+            int dia = lerInt("Dia");
+            int mes = lerInt("Mês");
+            int ano = lerInt("Ano");
+
+            if (!validador.dataValida(dia, mes, ano)) {
+                continue;
+            }
+
+            return LocalDateTime.of(ano, mes, dia, 0, 0);
         }
     }
 }
