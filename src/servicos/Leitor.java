@@ -90,8 +90,8 @@ public class Leitor {
         }
     }
 
-    public Endereco lerEndereco() {
-        System.out.println("Digite o endereço:");
+    public Endereco lerEndereco(String mensagem) {
+        System.out.println(mensagem);
         while (true) {
             String estado = lerString("Digite o estado (sigla)");
             Endereco.Estado estadoEnum = Endereco.procurarEstadoPorSigla(estado);
@@ -104,15 +104,15 @@ public class Leitor {
             String cidade = lerString("Digite a cidade");
             String rua = lerString("Digite a rua");
             int numero = lerInt("Digite o número");
-            String complemento = lerString("Digite o complemento");
+            String complemento = lerString("Digite o complemento (Opcional)");
 
             return new Endereco(rua, numero, complemento, cidade, estadoEnum);
         }
     }
 
-    public String lerSenha() {
+    public String lerSenha(String mensagem) {
         while (true) {
-            String senha = lerString("Digite a senha do funcionário");
+            String senha = lerString(mensagem);
             String segundaSenha = lerString("Digite novamente");
             if (!validador.senhaValida(senha, segundaSenha)) {
                 continue;
@@ -121,9 +121,9 @@ public class Leitor {
         }
     }
 
-    public String lerCPF() {
+    public String lerCPF(String mensagem) {
         while (true) {
-            String cpf = lerString("Digite o CPF (somente números)");
+            String cpf = lerString(mensagem + " (somente números)");
             if (!validador.validarCPF(cpf)) {
                 continue;
             }
@@ -131,9 +131,9 @@ public class Leitor {
         }
     }
 
-    public String lerCelular() {
+    public String lerCelular(String mensagem) {
         while (true) {
-            String celular = lerString("Digite o celular (DDD + 9 + numero");
+            String celular = lerString(mensagem + " (DDD + 9 + numero");
             if (!validador.validarCelular(celular)) {
                 continue;
             }
@@ -141,8 +141,8 @@ public class Leitor {
         }
     }
 
-    public LocalDateTime lerData() {
-        System.out.println("Digite a data:");
+    public LocalDateTime lerData(String mensagem) {
+        System.out.println(mensagem);
         while (true) {
             int dia = lerInt("Dia");
             int mes = lerInt("Mês");

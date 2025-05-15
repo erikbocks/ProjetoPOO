@@ -17,6 +17,10 @@ public abstract class Usuario {
         return nome;
     }
 
+    public String getCpf() {
+        return cpf;
+    }
+
     public Usuario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome, Endereco endereco) {
         this.cpf = cpf;
         this.telefone = telefone;

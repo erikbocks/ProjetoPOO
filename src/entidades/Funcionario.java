@@ -14,4 +14,8 @@ public class Funcionario extends Usuario {
     public String toString() {
         return String.format("Funcionario: [cpf=%s, nome=%s]", super.cpf, super.nome);
     }
+
+    public boolean autenticar(String senha) {
+        return this.senha.equals(senha);
+    }
 }
