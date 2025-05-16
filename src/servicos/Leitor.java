@@ -1,6 +1,7 @@
 package servicos;
 
 import entidades.Endereco;
+import entidades.Pet;
 import validadores.Validador;
 
 import java.time.LocalDateTime;
@@ -153,6 +154,35 @@ public class Leitor {
             }
 
             return LocalDateTime.of(ano, mes, dia, 0, 0);
+        }
+    }
+
+    public Pet.Especie lerEspecieDePet(String mensagem) {
+        System.out.println();
+        while (true) {
+            String especie = lerString(mensagem);
+            Pet.Especie especieEnum = Pet.procurarEspeciePorNome(especie);
+
+            if (especieEnum == null) {
+                System.err.println("Espécie não encontrada. Tente novamente.");
+                continue;
+            }
+
+            return especieEnum;
+        }
+    }
+
+    public Pet.Sexo lerSexoDePet(String mensagem) {
+        while (true) {
+            char sexo = lerChar(mensagem + "(M/F/m/f)");
+            Pet.Sexo sexoEnum = Pet.procurarSexoPorChar(sexo);
+
+            if (sexoEnum == null) {
+                System.err.println("Sexo não encontrado. Tente novamente.");
+                continue;
+            }
+
+            return sexoEnum;
         }
     }
 }

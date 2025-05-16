@@ -1,6 +1,7 @@
 import entidades.Cliente;
 import entidades.Endereco;
 import entidades.Funcionario;
+import entidades.Pet;
 import entidades.Usuario;
 import servicos.Leitor;
 
@@ -16,7 +17,8 @@ public class Principal {
     public static void main(String[] args) {
         int opcao;
 
-        funcionarios.add(new Funcionario("11111111111", null, null, "Roberson", null, "senha", null));
+        funcionarios.add(new Funcionario("11111111111", null, null, null, "Roberson", "senha", null));
+        clientes.add(new Cliente("22222222222", null, null, null, "Bock", null));
 
         while (true) {
             mostrarMenu();
@@ -33,6 +35,9 @@ public class Principal {
                 case 2:
                     cadastrarCliente();
                     break;
+                case 3:
+                    cadastrarPet();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -46,6 +51,7 @@ public class Principal {
                 
                 1. Cadastrar funcionário.
                 2. Cadastrar cliente.
+                3. Cadastrar pet.
                 0. Sair
                 
                 =================================================================
@@ -114,12 +120,76 @@ public class Principal {
         System.out.println("Cliente " + novoCliente.getNome() + " cadastrado com sucesso!");
     }
 
+    private static void cadastrarPet() {
+        System.out.println("Boas vindas ao cadastro de pet!");
+        System.out.println("Por favor, se autentique.");
+
+        Funcionario funcionario;
+
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return;
+        }
+
+        if (!autenticarFuncionario(funcionario)) {
+            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
+            return;
+        }
+
+        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
+
+        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
+
+        Cliente cliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoTutor)).findFirst().orElse(null);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        String nome = leitor.lerString("Digite o nome do pet");
+        Pet.Especie especie = leitor.lerEspecieDePet("""
+                ==========================================
+                Selecione a espécie do pet:
+                
+                CACHORRO
+                GATO
+                PEIXE
+                PASSARO
+                REPTIL
+                ROEDOR
+                OUTRO
+                ==========================================
+                
+                """);
+
+        String raca = leitor.lerString("Digite a raça do pet (Opcional)");
+        LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do pet");
+        Pet.Sexo sexo = leitor.lerSexoDePet("Digite o sexo do pet");
+
+        Pet novoPet = new Pet(nome, especie, raca, dataDeNascimento, sexo, cliente);
+
+        boolean desejaAdicionarObservacao = leitor.lerBoolean("Deseja adicionar observações ao pet?");
+
+        while (desejaAdicionarObservacao) {
+            String observacao = leitor.lerString("Digite a observação");
+            novoPet.adicionarObservacao(observacao);
+            desejaAdicionarObservacao = leitor.lerBoolean("Deseja adicionar mais observações?");
+        }
+
+        System.out.println("Pet " + novoPet.getNome() + " cadastrado com sucesso!");
+    }
+
     /**
      * Dá ao funcionário 3 chances de digitar a senha correta.
      *
      * @param funcionario que será autenticado.
      * @return true se a senha digitada estiver correta, false caso contrário.
-    */
+     */
     private static boolean autenticarFuncionario(Funcionario funcionario) {
         for (int i = 0; i < 3; i++) {
             System.out.println("Tentativa " + (i + 1) + " de 3");
