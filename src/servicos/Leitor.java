@@ -2,6 +2,7 @@ package servicos;
 
 import entidades.Endereco;
 import entidades.Pet;
+import entidades.Produto;
 import validadores.Validador;
 
 import java.time.LocalDateTime;
@@ -183,6 +184,21 @@ public class Leitor {
             }
 
             return sexoEnum;
+        }
+    }
+
+    public Produto.TipoProduto lerTipoDeProduto(String mensagem) {
+        System.out.println(mensagem);
+        while (true) {
+            String tipo = lerString("Digite o tipo do produto");
+            Produto.TipoProduto tipoProdutoEnum = Produto.procurarProdutoPorNome(tipo);
+
+            if (tipoProdutoEnum == null) {
+                System.err.println("Tipo de produto não encontrado. Tente novamente.");
+                continue;
+            }
+
+            return tipoProdutoEnum;
         }
     }
 }

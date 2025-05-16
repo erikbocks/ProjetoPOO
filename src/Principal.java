@@ -2,6 +2,7 @@ import entidades.Cliente;
 import entidades.Endereco;
 import entidades.Funcionario;
 import entidades.Pet;
+import entidades.Produto;
 import entidades.Usuario;
 import servicos.Leitor;
 
@@ -14,13 +15,19 @@ public class Principal {
     public static List<Funcionario> funcionarios = new ArrayList<>();
     public static List<Cliente> clientes = new ArrayList<>();
     public static List<Pet> pets = new ArrayList<>();
+    public static List<Produto> produtos = new ArrayList<>();
 
     public static void main(String[] args) {
         int opcao;
 
         funcionarios.add(new Funcionario("11111111111", null, null, null, "Roberson", "senha", null));
         clientes.add(new Cliente("22222222222", null, null, null, "Bock", null));
-
+        pets.add(new Pet("Tobby", Pet.Especie.CACHORRO, null, null, Pet.Sexo.MACHO, clientes.get(0)));
+        produtos.add(new Produto("Ração", "Ração para cachorro", 10, 50.0, Produto.TipoProduto.ALIMENTO));
+        produtos.add(new Produto("Banho", "Banho para cachorro", 1, 100.0, Produto.TipoProduto.SERVICO));
+        produtos.add(new Produto("Vacina", "Vacina para cachorro", 1, 200.0, Produto.TipoProduto.MEDICAMENTO));
+        produtos.add(new Produto("Coleira", "Coleira para cachorro", 10, 20.0, Produto.TipoProduto.ACESSORIO));
+        produtos.add(new Produto("Brinquedo", "Brinquedo para cachorro", 10, 30.0, Produto.TipoProduto.BRINQUEDO));
 
         while (true) {
             mostrarMenu();
@@ -40,6 +47,9 @@ public class Principal {
                 case 3:
                     cadastrarPet();
                     break;
+                case 4:
+                    cadastrarProduto();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -54,6 +64,7 @@ public class Principal {
                 1. Cadastrar funcionário.
                 2. Cadastrar cliente.
                 3. Cadastrar pet.
+                4. Cadastrar produto.
                 0. Sair
                 
                 =================================================================
@@ -185,6 +196,53 @@ public class Principal {
 
         pets.add(novoPet);
         System.out.println("Pet " + novoPet.getNome() + " cadastrado com sucesso!");
+    }
+
+    private static void cadastrarProduto() {
+        System.out.println("Boas vindas ao cadastro de produto!");
+        System.out.println("Por favor, se autentique.");
+
+        Funcionario funcionario;
+
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return;
+        }
+
+        if (!autenticarFuncionario(funcionario)) {
+            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
+            return;
+        }
+
+        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
+
+        String nome = leitor.lerString("Digite o nome do produto");
+        int quantidade = leitor.lerInt("Digite a quantidade do produto (Se for do tipo SERVIÇO, inserir 1)");
+        double valor = leitor.lerDouble("Digite o valor do produto (Ex: 10.99)");
+        Produto.TipoProduto tipo = leitor.lerTipoDeProduto("""
+                ==========================================
+                Selecione o tipo do produto:
+                
+                SERVIÇO
+                ALIMENTO
+                MEDICAMENTO
+                HIGIENE
+                ACESSÓRIO
+                BRINQUEDO
+                
+                ==========================================
+                
+                """);
+        String descricao = leitor.lerString("Digite a descrição do produto");
+
+        Produto novoProduto = new Produto(nome, descricao, quantidade, valor, tipo);
+        produtos.add(novoProduto);
+
+        System.out.println("Produto " + novoProduto.getNome() + " cadastrado com sucesso!");
     }
 
     /**
