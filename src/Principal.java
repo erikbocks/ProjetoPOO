@@ -13,12 +13,14 @@ public class Principal {
     public static Leitor leitor = new Leitor();
     public static List<Funcionario> funcionarios = new ArrayList<>();
     public static List<Cliente> clientes = new ArrayList<>();
+    public static List<Pet> pets = new ArrayList<>();
 
     public static void main(String[] args) {
         int opcao;
 
         funcionarios.add(new Funcionario("11111111111", null, null, null, "Roberson", "senha", null));
         clientes.add(new Cliente("22222222222", null, null, null, "Bock", null));
+
 
         while (true) {
             mostrarMenu();
@@ -181,6 +183,7 @@ public class Principal {
             desejaAdicionarObservacao = leitor.lerBoolean("Deseja adicionar mais observações?");
         }
 
+        pets.add(novoPet);
         System.out.println("Pet " + novoPet.getNome() + " cadastrado com sucesso!");
     }
 
