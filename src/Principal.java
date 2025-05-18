@@ -5,6 +5,7 @@ import entidades.Funcionario;
 import entidades.ItemVenda;
 import entidades.Pet;
 import entidades.Produto;
+import entidades.Prontuario;
 import entidades.Usuario;
 import entidades.Venda;
 import entidades.Veterinario;
@@ -24,6 +25,7 @@ public class Principal {
     public static List<Venda> vendas = new ArrayList<>();
     public static List<Veterinario> veterinarios = new ArrayList<>();
     public static List<Consulta> consultas = new ArrayList<>();
+    public static List<Prontuario> prontuarios = new ArrayList<>();
 
     public static void main(String[] args) {
         int opcao;
@@ -40,6 +42,7 @@ public class Principal {
         vendas.add(new Venda(LocalDateTime.now(), clientes.getFirst(), funcionarios.getFirst()));
         veterinarios.add(new Veterinario("33333333333", null, null, null, "Vini", null, "Dermatologia", "123456"));
         consultas.add(new Consulta(pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now()));
+        prontuarios.add(new Prontuario("123456", pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now().minusDays(2), LocalDateTime.now(), Consulta.Status.ABERTA));
 
         while (true) {
             mostrarMenu();
@@ -71,6 +74,9 @@ public class Principal {
                 case 7:
                     cadastrarConsulta();
                     break;
+                case 8:
+                    gerarProntuario();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -89,6 +95,7 @@ public class Principal {
                 5. Cadastrar venda.
                 6. Cadastrar veterinário.
                 7. Cadastrar consulta.
+                8. Gerar prontuário de consulta.
                 0. Sair
                 
                 =================================================================
@@ -313,7 +320,7 @@ public class Principal {
         boolean vendaAberta = true;
 
         while (vendaAberta) {
-            listarProdutosCadastrados();
+            listarProdutosCadastradosEmEstoque();
             String codigoDoProduto = leitor.lerString("Digite o nome do produto que deseja adicionar à venda (ou 'sair' para finalizar):");
 
             if (codigoDoProduto.equalsIgnoreCase("sair") && itensSelecionados.isEmpty()) {
@@ -466,7 +473,54 @@ public class Principal {
         consultas.add(novaConsulta);
     }
 
-    private static void listarProdutosCadastrados() {
+    private static void gerarProntuario() {
+        System.out.println("Boas vindas à geração de Prontuário!");
+        System.out.println("Por favor, se autentique.");
+
+        Funcionario funcionario;
+
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return;
+        }
+
+        if (!autenticarFuncionario(funcionario)) {
+            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
+            return;
+        }
+
+        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
+
+        listarConsultasEmAberto();
+        String codigoDaConsulta = leitor.lerString("Digite o código da consulta escolhida");
+
+        Optional<Consulta> possivelConsulta = consultas.stream().filter(c -> c.getCodigo().equals(codigoDaConsulta) && c.getStatus().equals(Consulta.Status.ABERTA)).findFirst();
+
+        if(possivelConsulta.isEmpty()) {
+            System.err.println("Consulta não encontrada. Tente novamente.");
+            return;
+        }
+
+        Consulta consulta = possivelConsulta.get();
+        int indiceConsulta = consultas.indexOf(consulta);
+
+        Prontuario prontuario = consulta.gerarProntuario();
+
+        consultas.set(indiceConsulta, consulta);
+        prontuarios.add(prontuario);
+    }
+
+    private static void listarConsultasEmAberto() {
+        System.out.println("=========== LISTA DE CONSULTAS =============");
+        consultas.stream().filter(c -> c.getStatus() == Consulta.Status.ABERTA).forEach(System.out::println);
+        System.out.println("============================================");
+    }
+
+    private static void listarProdutosCadastradosEmEstoque() {
         System.out.println("=========== LISTA DE PRODUTOS =============");
         produtos.stream().filter(p -> p.getQuantidade() > 0).forEach(System.out::println);
         System.out.println("============================================");
