@@ -201,4 +201,14 @@ public class Leitor {
             return tipoProdutoEnum;
         }
     }
+
+    public String lerCRMV(String mensagem) {
+        while (true) {
+            String crmv = lerString(mensagem);
+            if (!validador.validarCRMV(crmv)) {
+                continue;
+            }
+            return crmv;
+        }
+    }
 }

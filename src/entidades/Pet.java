@@ -27,6 +27,10 @@ public class Pet {
         return nome;
     }
 
+    public Cliente getTutor() {
+        return tutor;
+    }
+
     public enum Especie {
         CACHORRO,
         GATO,

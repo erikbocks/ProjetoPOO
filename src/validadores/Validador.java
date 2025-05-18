@@ -84,5 +84,21 @@ public class Validador {
 
         return valido;
     }
+
+    public boolean validarCRMV(String crmv) {
+        if (crmv.length() != 7) {
+            System.err.println("CRMV inválido. O CRMV deve ter 7 dígitos.");
+            return false;
+        }
+
+        for (char c : crmv.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                System.err.println("CRMV inválido. O CRMV deve conter apenas dígitos.");
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 

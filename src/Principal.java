@@ -1,4 +1,5 @@
 import entidades.Cliente;
+import entidades.Consulta;
 import entidades.Endereco;
 import entidades.Funcionario;
 import entidades.ItemVenda;
@@ -12,6 +13,7 @@ import servicos.Leitor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Principal {
     public static Leitor leitor = new Leitor();
@@ -21,19 +23,23 @@ public class Principal {
     public static List<Produto> produtos = new ArrayList<>();
     public static List<Venda> vendas = new ArrayList<>();
     public static List<Veterinario> veterinarios = new ArrayList<>();
+    public static List<Consulta> consultas = new ArrayList<>();
 
     public static void main(String[] args) {
         int opcao;
 
         funcionarios.add(new Funcionario("11111111111", null, null, null, "Roberson", "senha", null));
         clientes.add(new Cliente("22222222222", null, null, null, "Bock", null));
-        pets.add(new Pet("Tobby", Pet.Especie.CACHORRO, null, null, Pet.Sexo.MACHO, clientes.get(0)));
+        pets.add(new Pet("Tobby", Pet.Especie.CACHORRO, null, null, Pet.Sexo.MACHO, clientes.getFirst()));
+        pets.add(new Pet("Mimi", Pet.Especie.GATO, null, null, Pet.Sexo.FEMEA, clientes.getFirst()));
         produtos.add(new Produto("Ração", "Ração para cachorro", 10, 50.0, Produto.TipoProduto.ALIMENTO));
         produtos.add(new Produto("Banho", "Banho para cachorro", 1, 100.0, Produto.TipoProduto.SERVICO));
         produtos.add(new Produto("Vacina", "Vacina para cachorro", 1, 200.0, Produto.TipoProduto.MEDICAMENTO));
         produtos.add(new Produto("Coleira", "Coleira para cachorro", 10, 20.0, Produto.TipoProduto.ACESSORIO));
         produtos.add(new Produto("Brinquedo", "Brinquedo para cachorro", 10, 30.0, Produto.TipoProduto.BRINQUEDO));
-        vendas.add(new Venda(LocalDateTime.now(), clientes.get(0), funcionarios.get(0)));
+        vendas.add(new Venda(LocalDateTime.now(), clientes.getFirst(), funcionarios.getFirst()));
+        veterinarios.add(new Veterinario("33333333333", null, null, null, "Vini", null, "Dermatologia", "123456"));
+        consultas.add(new Consulta(pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now()));
 
         while (true) {
             mostrarMenu();
@@ -62,6 +68,9 @@ public class Principal {
                 case 6:
                     cadastrarVeterinario();
                     break;
+                case 7:
+                    cadastrarConsulta();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -79,6 +88,7 @@ public class Principal {
                 4. Cadastrar produto.
                 5. Cadastrar venda.
                 6. Cadastrar veterinário.
+                7. Cadastrar consulta.
                 0. Sair
                 
                 =================================================================
@@ -379,6 +389,81 @@ public class Principal {
         Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário");
         Veterinario novoVeterinario = new Veterinario(cpf, celular, dataDeNascimento, email, nome, endereco, especialidade, CRMV);
         veterinarios.add(novoVeterinario);
+    }
+
+    private static void cadastrarConsulta() {
+        System.out.println("Boas vindas ao cadastro de consultas!");
+        System.out.println("Por favor, se autentique.");
+
+        Funcionario funcionario;
+
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return;
+        }
+
+        if (!autenticarFuncionario(funcionario)) {
+            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
+            return;
+        }
+
+        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
+
+        String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
+
+        Cliente cliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoCliente)).findFirst().orElse(null);
+
+        if (cliente == null) {
+            System.err.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        String cpfDoVeterinario = leitor.lerCPF("Digite o CPF do veterinário");
+
+        Veterinario veterinario = veterinarios.stream().filter(v -> v.getCpf().equals(cpfDoVeterinario)).findFirst().orElse(null);
+
+        if (veterinario == null) {
+            System.err.println("Veterinário não encontrado. Tente novamente.");
+            return;
+        }
+
+        List<Pet> petsDoCliente = pets.stream().filter(p -> p.getTutor().getCpf().equals(cpfDoCliente)).toList();
+
+        Pet petSelecionado;
+
+        if (petsDoCliente.size() == 1) {
+            petSelecionado = petsDoCliente.stream().findFirst().get();
+        } else {
+            System.out.println("Selecione o pet:");
+
+            for (int i = 0; i < petsDoCliente.size(); i++) {
+                System.out.println((i + 1) + ". " + petsDoCliente.get(i).getNome());
+            }
+
+            int opcaoPet = leitor.lerInt("Digite o número do pet");
+
+            if (opcaoPet > petsDoCliente.size() || opcaoPet < 1) {
+                System.err.println("Opção inválida. Tente novamente.");
+                return;
+            }
+
+            petSelecionado = petsDoCliente.get(opcaoPet - 1);
+        }
+
+        if (petSelecionado == null) {
+            System.out.println("Pet não encontrado. Tente novamente.");
+            return;
+        }
+
+        LocalDateTime data = leitor.lerData("Digite a data da consulta");
+
+        System.out.println("Consulta agendada com sucesso!");
+        Consulta novaConsulta = new Consulta(petSelecionado, veterinario, data);
+        consultas.add(novaConsulta);
     }
 
     private static void listarProdutosCadastrados() {
