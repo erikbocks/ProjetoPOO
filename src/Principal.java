@@ -1,9 +1,11 @@
 import entidades.Cliente;
 import entidades.Endereco;
 import entidades.Funcionario;
+import entidades.ItemVenda;
 import entidades.Pet;
 import entidades.Produto;
 import entidades.Usuario;
+import entidades.Venda;
 import servicos.Leitor;
 
 import java.time.LocalDateTime;
@@ -50,6 +52,9 @@ public class Principal {
                 case 4:
                     cadastrarProduto();
                     break;
+                case 5:
+                    cadastrarVenda();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -65,6 +70,7 @@ public class Principal {
                 2. Cadastrar cliente.
                 3. Cadastrar pet.
                 4. Cadastrar produto.
+                5. Cadastrar venda.
                 0. Sair
                 
                 =================================================================
@@ -243,6 +249,87 @@ public class Principal {
         produtos.add(novoProduto);
 
         System.out.println("Produto " + novoProduto.getNome() + " cadastrado com sucesso!");
+    }
+
+    private static void cadastrarVenda() {
+        System.out.println("Boas vindas ao cadastro de vendas!");
+        System.out.println("Por favor, se autentique.");
+
+        Funcionario funcionario;
+
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return;
+        }
+
+        if (!autenticarFuncionario(funcionario)) {
+            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
+            return;
+        }
+
+        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
+
+        String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
+
+        Cliente cliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoCliente)).findFirst().orElse(null);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        LocalDateTime data = leitor.lerData("Digite a data da venda:");
+
+        Venda venda = new Venda(data, cliente, funcionario);
+        List<ItemVenda> itensSelecionados = new ArrayList<>();
+        boolean vendaAberta = true;
+
+        while (vendaAberta) {
+            listarProdutosCadastrados();
+            String codigoDoProduto = leitor.lerString("Digite o nome do produto que deseja adicionar à venda (ou 'sair' para finalizar):");
+
+            if (codigoDoProduto.equalsIgnoreCase("sair") && itensSelecionados.isEmpty()) {
+                System.out.println("Venda não pode ser finalizada sem produtos. Adicione pelo menos um produto.");
+                continue;
+            }
+
+            if (codigoDoProduto.equalsIgnoreCase("sair")) {
+                break;
+            }
+
+            Produto produto = produtos.stream().filter(p -> p.getCodigo().equalsIgnoreCase(codigoDoProduto)).findFirst().orElse(null);
+
+            if (produto == null) {
+                System.out.println("Produto não encontrado. Tente novamente.");
+                continue;
+            }
+
+            System.out.printf("Produto [%s] selecionado!!\n", produto.getNome());
+
+            int quantidade = leitor.lerInt("Digite a quantidade do produto que deseja adicionar à venda:");
+
+            if (produto.getQuantidade() < quantidade) {
+                System.out.println("Quantidade solicitada maior que a disponível. Tente novamente.");
+                continue;
+            }
+
+            itensSelecionados.add(new ItemVenda(quantidade, produto.getCodigo()));
+            produto.atualizarEstoque(quantidade);
+
+            vendaAberta = leitor.lerBoolean("Deseja adicionar mais produtos à venda");
+        }
+
+        venda.fecharVenda(itensSelecionados, produtos);
+    }
+
+    private static void listarProdutosCadastrados() {
+        System.out.println("=========== LISTA DE PRODUTOS =============");
+        produtos.stream().filter(p -> p.getQuantidade() > 0).forEach(System.out::println);
+        System.out.println("============================================");
     }
 
     /**

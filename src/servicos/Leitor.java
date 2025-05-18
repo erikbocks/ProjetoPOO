@@ -191,7 +191,7 @@ public class Leitor {
         System.out.println(mensagem);
         while (true) {
             String tipo = lerString("Digite o tipo do produto");
-            Produto.TipoProduto tipoProdutoEnum = Produto.procurarProdutoPorNome(tipo);
+            Produto.TipoProduto tipoProdutoEnum = Produto.procurarTipoDeProdutoPorNome(tipo);
 
             if (tipoProdutoEnum == null) {
                 System.err.println("Tipo de produto não encontrado. Tente novamente.");
