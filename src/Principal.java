@@ -18,6 +18,7 @@ public class Principal {
     public static List<Cliente> clientes = new ArrayList<>();
     public static List<Pet> pets = new ArrayList<>();
     public static List<Produto> produtos = new ArrayList<>();
+    public static List<Venda> vendas = new ArrayList<>();
 
     public static void main(String[] args) {
         int opcao;
@@ -30,6 +31,7 @@ public class Principal {
         produtos.add(new Produto("Vacina", "Vacina para cachorro", 1, 200.0, Produto.TipoProduto.MEDICAMENTO));
         produtos.add(new Produto("Coleira", "Coleira para cachorro", 10, 20.0, Produto.TipoProduto.ACESSORIO));
         produtos.add(new Produto("Brinquedo", "Brinquedo para cachorro", 10, 30.0, Produto.TipoProduto.BRINQUEDO));
+        vendas.add(new Venda(LocalDateTime.now(), clientes.get(0), funcionarios.get(0)));
 
         while (true) {
             mostrarMenu();
@@ -324,6 +326,7 @@ public class Principal {
         }
 
         venda.fecharVenda(itensSelecionados, produtos);
+        vendas.add(venda);
     }
 
     private static void listarProdutosCadastrados() {
