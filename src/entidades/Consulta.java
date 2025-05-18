@@ -18,6 +18,16 @@ public class Consulta {
         this.status = Status.ABERTA;
     }
 
+    public static Status procurarStatusPorNome(String statusSelecionado) {
+        for (Status status : Status.values()) {
+            if (status.name().equalsIgnoreCase(statusSelecionado)) {
+                return status;
+            }
+        }
+
+        return null;
+    }
+
     public Status getStatus() {
         return status;
     }

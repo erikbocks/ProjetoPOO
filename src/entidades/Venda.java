@@ -3,6 +3,7 @@ package entidades;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Venda {
     private String codigo;
@@ -13,10 +14,24 @@ public class Venda {
     private List<ItemVenda> itens;
     private Status status;
 
+    public Status getStatus() {
+        return status;
+    }
+
     public enum Status {
         ABERTA,
         FECHADA,
         CANCELADA
+    }
+
+    public static Status procurarStatusPorNome(String nome) {
+        for (Status status : Status.values()) {
+            if (status.name().equalsIgnoreCase(nome)) {
+                return status;
+            }
+        }
+
+        return null;
     }
 
     public Venda(LocalDateTime data, Cliente cliente, Funcionario responsavel) {
@@ -43,5 +58,10 @@ public class Venda {
         System.out.println("Código da venda: " + this.codigo);
         System.out.println("Valor total: " + this.valor);
         System.out.println("==========================");
+    }
+
+    @Override
+    public String toString() {
+        return "Venda[codigo=%s, valor=%.2f, data=%s, cliente=%s, responsavel=%s, itens=%s, status=%s]".formatted(codigo, valor, data.format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy - HH:mm", Locale.ROOT)), cliente.getNome(), responsavel.getNome(), itens.toString(), status);
     }
 }

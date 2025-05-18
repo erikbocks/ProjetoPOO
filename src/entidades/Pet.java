@@ -64,4 +64,9 @@ public class Pet {
         return (sexo == 'M' || sexo == 'm') ? Sexo.MACHO :
                 (sexo == 'F' || sexo == 'f') ? Sexo.FEMEA : null;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Pet[nome=%s, especie=%s, raca=%s, dataDeNascimento=%s, sexo=%s, observacoes=%s, tutor=%s]", nome, especie, raca, dataDeNascimento, sexo, observacoes, tutor.getNome());
+    }
 }

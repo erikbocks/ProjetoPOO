@@ -30,17 +30,19 @@ public class Principal {
     public static void main(String[] args) {
         int opcao;
 
-        funcionarios.add(new Funcionario("11111111111", null, null, null, "Roberson", "senha", null));
-        clientes.add(new Cliente("22222222222", null, null, null, "Bock", null));
-        pets.add(new Pet("Tobby", Pet.Especie.CACHORRO, null, null, Pet.Sexo.MACHO, clientes.getFirst()));
-        pets.add(new Pet("Mimi", Pet.Especie.GATO, null, null, Pet.Sexo.FEMEA, clientes.getFirst()));
+        // Dados mockados para testes
+        funcionarios.add(new Funcionario("11111111111", "11111111111", LocalDateTime.now(), "roberson@email.com", "Roberson", "senha", new Endereco("Rua 1", 123, "Centro", "São Paulo", Endereco.Estado.SC)));
+        clientes.add(new Cliente("22222222222", "22222222222", LocalDateTime.now(), "roberson@email.com", "Bock", new Endereco("Rua 1", 123, "Centro", "São Paulo", Endereco.Estado.SC)));
+        pets.add(new Pet("Tobby", Pet.Especie.CACHORRO, "Vira Lata", LocalDateTime.now(), Pet.Sexo.MACHO, clientes.getFirst()));
+        pets.add(new Pet("Mimi", Pet.Especie.GATO, "Siamês", LocalDateTime.now(), Pet.Sexo.FEMEA, clientes.getFirst()));
         produtos.add(new Produto("Ração", "Ração para cachorro", 10, 50.0, Produto.TipoProduto.ALIMENTO));
         produtos.add(new Produto("Banho", "Banho para cachorro", 1, 100.0, Produto.TipoProduto.SERVICO));
         produtos.add(new Produto("Vacina", "Vacina para cachorro", 1, 200.0, Produto.TipoProduto.MEDICAMENTO));
         produtos.add(new Produto("Coleira", "Coleira para cachorro", 10, 20.0, Produto.TipoProduto.ACESSORIO));
         produtos.add(new Produto("Brinquedo", "Brinquedo para cachorro", 10, 30.0, Produto.TipoProduto.BRINQUEDO));
         vendas.add(new Venda(LocalDateTime.now(), clientes.getFirst(), funcionarios.getFirst()));
-        veterinarios.add(new Veterinario("33333333333", null, null, null, "Vini", null, "Dermatologia", "123456"));
+        vendas.getFirst().fecharVenda(List.of(new ItemVenda(1, produtos.getFirst().getCodigo())), produtos);
+        veterinarios.add(new Veterinario("33333333333", "33333333333", LocalDateTime.now(), "vini@email.com", "Vini", new Endereco("Rua 1", 123, "Centro", "São Paulo", Endereco.Estado.SC), "Dermatologia", "123456"));
         consultas.add(new Consulta(pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now()));
         prontuarios.add(new Prontuario("123456", pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now().minusDays(2), LocalDateTime.now(), Consulta.Status.ABERTA));
 
@@ -77,6 +79,33 @@ public class Principal {
                 case 8:
                     gerarProntuario();
                     break;
+                case 9:
+                    listarFuncionarios();
+                    break;
+                case 10:
+                    listarClientes();
+                    break;
+                case 11:
+                    listarPets();
+                    break;
+                case 12:
+                    listarPetsDoCliente();
+                    break;
+                case 13:
+                    listarProdutos();
+                    break;
+                case 14:
+                    listarVendas();
+                    break;
+                case 15:
+                    listarVeterinarios();
+                    break;
+                case 16:
+                    listarProntuarios();
+                    break;
+                case 17:
+                    listarConsultas();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -96,6 +125,15 @@ public class Principal {
                 6. Cadastrar veterinário.
                 7. Cadastrar consulta.
                 8. Gerar prontuário de consulta.
+                9. Listar funcionários.
+                10. Listar clientes.
+                11. Listar pets.
+                12. Listar pets do cliente.
+                13. Listar produtos.
+                14. Listar vendas.
+                15. Listar veterinários.
+                16. Listar prontuários.
+                17. Listar consultas.
                 0. Sair
                 
                 =================================================================
@@ -105,11 +143,18 @@ public class Principal {
     private static void cadastrarFuncionario() {
         System.out.println("Boas vindas ao cadastro de funcionário!");
 
-        String cpf;
-        while (true) {
-            cpf = leitor.lerCPF("Digite o CPF do funcionário");
+        Funcionario funcionario = autenticarFuncionario();
 
-            if (cpfCadastrado(cpf, funcionarios)) {
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return;
+        }
+
+        String cpfDoFuncionario;
+        while (true) {
+            cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+            if (cpfCadastrado(cpfDoFuncionario, funcionarios)) {
                 System.err.println("CPF já cadastrado. Tente novamente.");
             } else {
                 break;
@@ -123,7 +168,7 @@ public class Principal {
         String senha = leitor.lerSenha("Digite a nova senha do funcionário");
         Endereco endereco = leitor.lerEndereco("Digite o endereço do funcionário");
 
-        Funcionario novoFuncionario = new Funcionario(cpf, celular, dataDeNascimento, email, nome, senha, endereco);
+        Funcionario novoFuncionario = new Funcionario(cpfDoFuncionario, celular, dataDeNascimento, email, nome, senha, endereco);
         funcionarios.add(novoFuncionario);
 
         System.out.println("Funcionário " + novoFuncionario.getNome() + " cadastrado com sucesso!");
@@ -131,31 +176,23 @@ public class Principal {
 
     private static void cadastrarCliente() {
         System.out.println("Boas vindas ao cadastro de cliente!");
-        System.out.println("Por favor, se autentique.");
 
-        Funcionario funcionario;
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+        Funcionario funcionario = autenticarFuncionario();
 
         if (funcionario == null) {
             System.out.println("Funcionário não encontrado. Tente novamente.");
             return;
         }
 
-        if (!autenticarFuncionario(funcionario)) {
-            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de cliente.");
-            return;
-        }
+        String cpfDoCliente;
+        while (true) {
+            cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
 
-        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
-
-        String cpf = leitor.lerCPF("Digite o CPF do cliente");
-
-        if (cpfCadastrado(cpf, clientes)) {
-            System.err.println("CPF já cadastrado. Tente novamente.");
-            return;
+            if (cpfCadastrado(cpfDoCliente, clientes)) {
+                System.err.println("CPF já cadastrado. Tente novamente.");
+            } else {
+                break;
+            }
         }
 
         String celular = leitor.lerCelular("Digite o celular do cliente");
@@ -164,7 +201,7 @@ public class Principal {
         String email = leitor.lerString("Digite o email do cliente");
         Endereco endereco = leitor.lerEndereco("Digite o endereço do cliente");
 
-        Cliente novoCliente = new Cliente(cpf, celular, dataDeNascimento, email, nome, endereco);
+        Cliente novoCliente = new Cliente(cpfDoCliente, celular, dataDeNascimento, email, nome, endereco);
         clientes.add(novoCliente);
 
         System.out.println("Cliente " + novoCliente.getNome() + " cadastrado com sucesso!");
@@ -172,25 +209,13 @@ public class Principal {
 
     private static void cadastrarPet() {
         System.out.println("Boas vindas ao cadastro de pet!");
-        System.out.println("Por favor, se autentique.");
 
-        Funcionario funcionario;
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+        Funcionario funcionario = autenticarFuncionario();
 
         if (funcionario == null) {
             System.out.println("Funcionário não encontrado. Tente novamente.");
             return;
         }
-
-        if (!autenticarFuncionario(funcionario)) {
-            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
-            return;
-        }
-
-        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
 
         String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
 
@@ -237,25 +262,13 @@ public class Principal {
 
     private static void cadastrarProduto() {
         System.out.println("Boas vindas ao cadastro de produto!");
-        System.out.println("Por favor, se autentique.");
 
-        Funcionario funcionario;
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+        Funcionario funcionario = autenticarFuncionario();
 
         if (funcionario == null) {
             System.out.println("Funcionário não encontrado. Tente novamente.");
             return;
         }
-
-        if (!autenticarFuncionario(funcionario)) {
-            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
-            return;
-        }
-
-        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
 
         String nome = leitor.lerString("Digite o nome do produto");
         int quantidade = leitor.lerInt("Digite a quantidade do produto (Se for do tipo SERVIÇO, inserir 1)");
@@ -284,25 +297,13 @@ public class Principal {
 
     private static void cadastrarVenda() {
         System.out.println("Boas vindas ao cadastro de vendas!");
-        System.out.println("Por favor, se autentique.");
 
-        Funcionario funcionario;
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+        Funcionario funcionario = autenticarFuncionario();
 
         if (funcionario == null) {
             System.out.println("Funcionário não encontrado. Tente novamente.");
             return;
         }
-
-        if (!autenticarFuncionario(funcionario)) {
-            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
-            return;
-        }
-
-        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
 
         String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
 
@@ -360,31 +361,23 @@ public class Principal {
 
     private static void cadastrarVeterinario() {
         System.out.println("Boas vindas ao cadastro de veterinário!");
-        System.out.println("Por favor, se autentique.");
 
-        Funcionario funcionario;
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+        Funcionario funcionario = autenticarFuncionario();
 
         if (funcionario == null) {
             System.out.println("Funcionário não encontrado. Tente novamente.");
             return;
         }
 
-        if (!autenticarFuncionario(funcionario)) {
-            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
-            return;
-        }
+        String cpf;
+        while (true) {
+            cpf = leitor.lerCPF("Digite o CPF do veterinário");
 
-        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
-
-        String cpf = leitor.lerCPF("Digite o CPF do veterinário");
-
-        if (cpfCadastrado(cpf, veterinarios)) {
-            System.err.println("CPF já cadastrado. Tente novamente.");
-            return;
+            if (cpfCadastrado(cpf, veterinarios)) {
+                System.err.println("CPF já cadastrado. Tente novamente.");
+            } else {
+                break;
+            }
         }
 
         String celular = leitor.lerCelular("Digite o celular do veterinário");
@@ -394,31 +387,20 @@ public class Principal {
         String especialidade = leitor.lerString("Digite a especialidade do veterinário");
         String CRMV = leitor.lerString("Digite o CRMV do veterinário");
         Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário");
+
         Veterinario novoVeterinario = new Veterinario(cpf, celular, dataDeNascimento, email, nome, endereco, especialidade, CRMV);
         veterinarios.add(novoVeterinario);
     }
 
     private static void cadastrarConsulta() {
         System.out.println("Boas vindas ao cadastro de consultas!");
-        System.out.println("Por favor, se autentique.");
 
-        Funcionario funcionario;
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+        Funcionario funcionario = autenticarFuncionario();
 
         if (funcionario == null) {
             System.out.println("Funcionário não encontrado. Tente novamente.");
             return;
         }
-
-        if (!autenticarFuncionario(funcionario)) {
-            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
-            return;
-        }
-
-        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
 
         String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
 
@@ -475,32 +457,20 @@ public class Principal {
 
     private static void gerarProntuario() {
         System.out.println("Boas vindas à geração de Prontuário!");
-        System.out.println("Por favor, se autentique.");
 
-        Funcionario funcionario;
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+        Funcionario funcionario = autenticarFuncionario();
 
         if (funcionario == null) {
             System.out.println("Funcionário não encontrado. Tente novamente.");
             return;
         }
 
-        if (!autenticarFuncionario(funcionario)) {
-            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
-            return;
-        }
-
-        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
-
         listarConsultasEmAberto();
         String codigoDaConsulta = leitor.lerString("Digite o código da consulta escolhida");
 
         Optional<Consulta> possivelConsulta = consultas.stream().filter(c -> c.getCodigo().equals(codigoDaConsulta) && c.getStatus().equals(Consulta.Status.ABERTA)).findFirst();
 
-        if(possivelConsulta.isEmpty()) {
+        if (possivelConsulta.isEmpty()) {
             System.err.println("Consulta não encontrada. Tente novamente.");
             return;
         }
@@ -512,6 +482,106 @@ public class Principal {
 
         consultas.set(indiceConsulta, consulta);
         prontuarios.add(prontuario);
+    }
+
+    private static void listarFuncionarios() {
+        System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
+        funcionarios.forEach(System.out::println);
+        System.out.println("===============================================");
+    }
+
+    private static void listarClientes() {
+        System.out.println("=========== LISTA DE CLIENTES ==============");
+        clientes.forEach(System.out::println);
+        System.out.println("============================================");
+    }
+
+    private static void listarPets() {
+        System.out.println("=========== LISTA DE PETS =============");
+        pets.forEach(System.out::println);
+        System.out.println("========================================");
+    }
+
+    private static void listarPetsDoCliente() {
+        String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
+
+        Optional<Cliente> possivelCliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoCliente)).findFirst();
+
+        if (possivelCliente.isEmpty()) {
+            System.err.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        Cliente cliente = possivelCliente.get();
+
+        System.out.println("=========== LISTA DE PETS DO " + cliente.getNome() + " =============");
+        pets.stream().filter(p -> p.getTutor().getCpf().equals(cliente.getCpf())).forEach(System.out::println);
+        System.out.println("===================================================");
+    }
+
+    private static void listarProdutos() {
+        System.out.println("=========== LISTA DE PRODUTOS =============");
+        produtos.forEach(System.out::println);
+        System.out.println("============================================");
+    }
+
+    private static void listarVendas() {
+        System.out.println("""
+                =========== STATUS DE VENDA =============
+                ABERTA
+                FECHADA
+                CANCELADA
+                TODOS
+                =========================================
+                """);
+
+        String statusSelecionado = leitor.lerString("Digite o status da venda:");
+        Venda.Status status = Venda.procurarStatusPorNome(statusSelecionado);
+
+        if (status == null && !statusSelecionado.equalsIgnoreCase("todos")) {
+            System.err.println("Status inválido. Tente novamente.");
+            return;
+        }
+
+        System.out.println("=========== LISTA DE VENDAS =============");
+        if (statusSelecionado.equalsIgnoreCase("todos")) {
+            vendas.forEach(System.out::println);
+        } else {
+            vendas.stream().filter(v -> v.getStatus().equals(status)).forEach(System.out::println);
+        }
+        System.out.println("===========================================");
+    }
+
+    private static void listarVeterinarios() {
+        System.out.println("=========== LISTA DE VETERINÁRIOS =============");
+        veterinarios.forEach(System.out::println);
+        System.out.println("===============================================");
+    }
+
+    private static void listarProntuarios() {
+        System.out.println("=========== LISTA DE PRONTUÁRIOS =============");
+        prontuarios.forEach(System.out::println);
+        System.out.println("===============================================");
+    }
+
+    private static void listarConsultas() {
+        System.out.println("""
+                =========== STATUS DE CONSULTAS ============
+                ABERTA
+                FINALIZADA
+                CANCELADA
+                ============================================
+                """);
+        String statusSelecionado = leitor.lerString("Digite o status da consulta:");
+        Consulta.Status status = Consulta.procurarStatusPorNome(statusSelecionado);
+
+        System.out.println("=========== LISTA DE CONSULTAS =============");
+        if (statusSelecionado.equalsIgnoreCase("todos")) {
+            consultas.forEach(System.out::println);
+        } else {
+            consultas.stream().filter(c -> c.getStatus().equals(status)).forEach(System.out::println);
+        }
+        System.out.println("============================================");
     }
 
     private static void listarConsultasEmAberto() {
@@ -527,30 +597,45 @@ public class Principal {
     }
 
     /**
-     * Dá ao funcionário 3 chances de digitar a senha correta.
+     * Encontra o funcionário pelo CPF digitado e o autentica por meio de sua senha.
      *
-     * @param funcionario que será autenticado.
-     * @return true se a senha digitada estiver correta, false caso contrário.
+     * @return o funcionário encontrado, null caso não encontre.
      */
-    private static boolean autenticarFuncionario(Funcionario funcionario) {
-        for (int i = 0; i < 3; i++) {
-            System.out.println("Tentativa " + (i + 1) + " de 3");
+    private static Funcionario autenticarFuncionario() {
+        System.out.println("Por favor, se autentique.");
+
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+        Funcionario funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return null;
+        }
+
+        int tentativasDeLogin = 0;
+
+        while (tentativasDeLogin != 3) {
+            System.out.println("Tentativa " + (tentativasDeLogin + 1) + " de 3");
             String senha = leitor.lerString("Digite a sua senha");
 
             if (funcionario.autenticar(senha)) {
-                return true;
+                System.out.println("Boas vindas, " + funcionario.getNome() + "!");
+                return funcionario;
             } else {
                 System.err.println("Senha incorreta. Tente novamente.");
+                tentativasDeLogin++;
             }
         }
 
-        return false;
+        System.err.println("Número máximo de tentativas atingido. Cancelando autenticação.");
+        return null;
     }
 
     /**
      * Valida se o CPF já foi cadastrado em alguma entidade da lista.
      *
-     * @param cpf   a ser validado.
+     * @param cpf a ser validado.
      * @param lista lista com as entidades.
      * @return true se o CPF já foi cadastrado, false caso contrário.
      */

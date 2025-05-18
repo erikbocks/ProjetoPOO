@@ -29,4 +29,9 @@ public class Endereco {
 
         return null;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Endereco[rua=%s, numero=%d, complemento=%s, cidade=%s, estado=%s]", rua, numero, complemento, cidade, estado);
+    }
 }
