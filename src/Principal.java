@@ -6,6 +6,7 @@ import entidades.Pet;
 import entidades.Produto;
 import entidades.Usuario;
 import entidades.Venda;
+import entidades.Veterinario;
 import servicos.Leitor;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class Principal {
     public static List<Pet> pets = new ArrayList<>();
     public static List<Produto> produtos = new ArrayList<>();
     public static List<Venda> vendas = new ArrayList<>();
+    public static List<Veterinario> veterinarios = new ArrayList<>();
 
     public static void main(String[] args) {
         int opcao;
@@ -57,6 +59,9 @@ public class Principal {
                 case 5:
                     cadastrarVenda();
                     break;
+                case 6:
+                    cadastrarVeterinario();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -73,6 +78,7 @@ public class Principal {
                 3. Cadastrar pet.
                 4. Cadastrar produto.
                 5. Cadastrar venda.
+                6. Cadastrar veterinário.
                 0. Sair
                 
                 =================================================================
@@ -129,6 +135,12 @@ public class Principal {
         System.out.println("Boas vindas, " + funcionario.getNome() + "!");
 
         String cpf = leitor.lerCPF("Digite o CPF do cliente");
+
+        if (cpfCadastrado(cpf, clientes)) {
+            System.err.println("CPF já cadastrado. Tente novamente.");
+            return;
+        }
+
         String celular = leitor.lerCelular("Digite o celular do cliente");
         LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do cliente");
         String nome = leitor.lerString("Digite o nome do cliente");
@@ -327,6 +339,46 @@ public class Principal {
 
         venda.fecharVenda(itensSelecionados, produtos);
         vendas.add(venda);
+    }
+
+    private static void cadastrarVeterinario() {
+        System.out.println("Boas vindas ao cadastro de veterinário!");
+        System.out.println("Por favor, se autentique.");
+
+        Funcionario funcionario;
+
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+
+        funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado. Tente novamente.");
+            return;
+        }
+
+        if (!autenticarFuncionario(funcionario)) {
+            System.err.println("Número máximo de tentativas atingido. Cancelando cadastro de pet.");
+            return;
+        }
+
+        System.out.println("Boas vindas, " + funcionario.getNome() + "!");
+
+        String cpf = leitor.lerCPF("Digite o CPF do veterinário");
+
+        if (cpfCadastrado(cpf, veterinarios)) {
+            System.err.println("CPF já cadastrado. Tente novamente.");
+            return;
+        }
+
+        String celular = leitor.lerCelular("Digite o celular do veterinário");
+        LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do veterinário");
+        String nome = leitor.lerString("Digite o nome do veterinário");
+        String email = leitor.lerString("Digite o email do veterinário");
+        String especialidade = leitor.lerString("Digite a especialidade do veterinário");
+        String CRMV = leitor.lerString("Digite o CRMV do veterinário");
+        Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário");
+        Veterinario novoVeterinario = new Veterinario(cpf, celular, dataDeNascimento, email, nome, endereco, especialidade, CRMV);
+        veterinarios.add(novoVeterinario);
     }
 
     private static void listarProdutosCadastrados() {

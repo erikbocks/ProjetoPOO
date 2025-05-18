@@ -6,7 +6,9 @@ public class Veterinario extends Usuario {
     private String especialidade;
     private String CRMV;
 
-    public Veterinario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome, Endereco endereco) {
+    public Veterinario(String cpf, String telefone, LocalDateTime dataDeNascimento, String email, String nome, Endereco endereco, String especialidade, String CRMV) {
         super(cpf, telefone, dataDeNascimento, email, nome, endereco);
+        this.especialidade = especialidade;
+        this.CRMV = CRMV;
     }
 }
