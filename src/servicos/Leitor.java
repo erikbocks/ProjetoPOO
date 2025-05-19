@@ -42,30 +42,6 @@ public class Leitor {
         }
     }
     
-    public float lerFloat(String mensagem) {
-        while (true) {
-            System.out.print(mensagem + ": ");
-            try {
-                String linha = scanner.nextLine();
-                return Float.parseFloat(linha.trim());
-            } catch (NumberFormatException e) {
-                System.err.println("Erro: Entrada inválida. Por favor, digite um número decimal.");
-            }
-        }
-    }
-    
-    public long lerLong(String mensagem) {
-        while (true) {
-            System.out.print(mensagem + ": ");
-            try {
-                String linha = scanner.nextLine();
-                return Long.parseLong(linha.trim());
-            } catch (NumberFormatException e) {
-                System.err.println("Erro: Entrada inválida. Por favor, digite um número inteiro longo.");
-            }
-        }
-    }
-    
     public char lerChar(String mensagem) {
         while (true) {
             System.out.print(mensagem + ": ");

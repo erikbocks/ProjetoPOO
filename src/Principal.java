@@ -385,7 +385,7 @@ public class Principal {
         String nome = leitor.lerString("Digite o nome do veterinário");
         String email = leitor.lerString("Digite o email do veterinário");
         String especialidade = leitor.lerString("Digite a especialidade do veterinário");
-        String CRMV = leitor.lerString("Digite o CRMV do veterinário");
+        String CRMV = leitor.lerCRMV("Digite o CRMV do veterinário");
         Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário");
 
         Veterinario novoVeterinario = new Veterinario(cpf, celular, dataDeNascimento, email, nome, endereco, especialidade, CRMV);
