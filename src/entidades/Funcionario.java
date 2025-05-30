@@ -10,6 +10,17 @@ public class Funcionario extends Usuario {
         this.senha = senha;
     }
 
+    public Funcionario() {
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
     @Override
     public String toString() {
         return String.format("Funcionario: [cpf=%s, nome=%s]", super.cpf, super.nome);
