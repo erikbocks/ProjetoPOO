@@ -5,6 +5,7 @@ import banco.GerenciadorFuncionarios;
 import entidades.Endereco;
 import entidades.Funcionario;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +19,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     public Funcionario buscarPorCpf(String cpf) {
         Funcionario funcionario = null;
 
-        try (var conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO)) {
+        try (var conn = getConnectionWithFKEnabled()) {
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM funcionarios f INNER JOIN enderecos_funcionarios ef ON f.cpf = ef.cpf_funcionarios WHERE f.cpf = ?");
             pstmt.setString(1, cpf);
             ResultSet rs = pstmt.executeQuery();
@@ -39,7 +40,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     public List<Funcionario> listarTodos() {
         List<Funcionario> funcionarios = new ArrayList<>();
 
-        try (var conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO)) {
+        try (var conn = getConnectionWithFKEnabled()) {
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM funcionarios f INNER JOIN enderecos_funcionarios ef ON f.cpf = ef.cpf_funcionarios");
             ResultSet rs = pstmt.executeQuery();
 
@@ -57,7 +58,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
 
     @Override
     public Funcionario inserir(Funcionario entidade) {
-        try (var conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO)) {
+        try (var conn = getConnectionWithFKEnabled()) {
             conn.setAutoCommit(false);
             entidade.setDataDeCadastro(LocalDateTime.now());
 
@@ -117,7 +118,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
 
     @Override
     public void atualizar(Funcionario entidade) {
-        try (var conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO)) {
+        try (var conn = getConnectionWithFKEnabled()) {
             conn.setAutoCommit(false);
 
             String sqlFuncionario = "UPDATE funcionarios SET nome = ?, email = ?, telefone = ?, data_nascimento = ?, ativo = ?, senha = ? WHERE cpf = ?";
@@ -160,13 +161,25 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     }
 
     @Override
-    public void excluir(int id) {
+    public void excluir(Funcionario entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
-    }
+            String sqlFuncionario = "DELETE FROM funcionarios WHERE cpf = ?";
+            try (PreparedStatement pstmtFuncionario = conn.prepareStatement(sqlFuncionario)) {
+                pstmtFuncionario.setString(1, entidade.getCpf());
+                pstmtFuncionario.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Erro ao excluir funcionário: " + e.getMessage());
+                conn.rollback();
+                return;
+            }
 
-    @Override
-    public String getNomeTabela() {
-        return "funcionarios";
+            conn.commit();
+        } catch (SQLException e) {
+            System.err.println("Erro ao excluir funcionário: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private Funcionario mapearResultSetParaFuncionario(ResultSet rs) throws SQLException {
@@ -191,5 +204,15 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
         funcionario.setEndereco(endereco);
 
         return funcionario;
+    }
+
+    private Connection getConnectionWithFKEnabled() throws SQLException {
+        Connection conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO);
+
+        try (var stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA foreign_keys = ON;");
+        }
+
+        return conn;
     }
 }

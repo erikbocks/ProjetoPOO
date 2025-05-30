@@ -21,7 +21,7 @@ public class Endereco {
 
     public enum Estado {
         SC,
-        RS;
+        RS
     }
 
     public static Estado procurarEstadoPorSigla(String sigla) {

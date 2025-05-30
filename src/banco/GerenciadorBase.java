@@ -16,12 +16,17 @@ public interface GerenciadorBase<T> {
      * @param entidade A entidade a ser inserida.
      * @return A entidade salva no banco.
      */
-
     T inserir(T entidade);
 
+    /**
+     * Atualiza a entidade do Gerenciador no banco de dados.
+     * @param entidade a entidade a ser inserida.
+     */
     void atualizar(T entidade);
 
-    void excluir(int id);
-
-    String getNomeTabela();
+    /**
+     * Remove a entidade do Gerenciador no banco de dados.
+     * @param entidade a entidade a ser removida.
+     */
+    void excluir(T entidade);
 }
