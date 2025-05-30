@@ -16,7 +16,23 @@ import java.util.List;
 public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     @Override
     public Funcionario buscarPorCpf(String cpf) {
-        return null;
+        Funcionario funcionario = null;
+
+        try (var conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO)) {
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM funcionarios f INNER JOIN enderecos_funcionarios ef ON f.cpf = ef.cpf_funcionarios WHERE f.cpf = ?");
+            pstmt.setString(1, cpf);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                funcionario = mapearResultSetParaFuncionario(rs);
+            }
+
+            return funcionario;
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar funcionário por CPF: " + e.getMessage());
+            e.printStackTrace();
+            return funcionario;
+        }
     }
 
     @Override
