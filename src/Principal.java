@@ -47,64 +47,16 @@ public class Principal {
         prontuarios.add(new Prontuario("123456", pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now().minusDays(2), LocalDateTime.now(), Consulta.Status.ABERTA));
 
         while (true) {
-            mostrarMenu();
+            mostrarMenuEntidades();
 
-            opcao = leitor.lerInt("Qual opção você gostaria de selecionar?");
+            opcao = leitor.lerInt("Qual entidade você gostaria de selecionar?");
 
             switch (opcao) {
                 case 0:
                     System.out.println("Saindo do sistema...");
                     return;
                 case 1:
-                    cadastrarFuncionario();
-                    break;
-                case 2:
-                    cadastrarCliente();
-                    break;
-                case 3:
-                    cadastrarPet();
-                    break;
-                case 4:
-                    cadastrarProduto();
-                    break;
-                case 5:
-                    cadastrarVenda();
-                    break;
-                case 6:
-                    cadastrarVeterinario();
-                    break;
-                case 7:
-                    cadastrarConsulta();
-                    break;
-                case 8:
-                    gerarProntuario();
-                    break;
-                case 9:
-                    listarFuncionarios();
-                    break;
-                case 10:
-                    listarClientes();
-                    break;
-                case 11:
-                    listarPets();
-                    break;
-                case 12:
-                    listarPetsDoCliente();
-                    break;
-                case 13:
-                    listarProdutos();
-                    break;
-                case 14:
-                    listarVendas();
-                    break;
-                case 15:
-                    listarVeterinarios();
-                    break;
-                case 16:
-                    listarProntuarios();
-                    break;
-                case 17:
-                    listarConsultas();
+                    mostrarMenuFuncionario();
                     break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
@@ -113,30 +65,35 @@ public class Principal {
         }
     }
 
-    private static void mostrarMenu() {
+    private static void mostrarMenuEntidades() {
         System.out.println("""
-                ====================== PET SHOP BOCK E VINI =====================
+                ============================= MENU - ENTIDADES ==================================
                 
-                1. Cadastrar funcionário.
-                2. Cadastrar cliente.
-                3. Cadastrar pet.
-                4. Cadastrar produto.
-                5. Cadastrar venda.
-                6. Cadastrar veterinário.
-                7. Cadastrar consulta.
-                8. Gerar prontuário de consulta.
-                9. Listar funcionários.
-                10. Listar clientes.
-                11. Listar pets.
-                12. Listar pets do cliente.
-                13. Listar produtos.
-                14. Listar vendas.
-                15. Listar veterinários.
-                16. Listar prontuários.
-                17. Listar consultas.
-                0. Sair
+                1. Funcionário
+                2. Cliente
+                3. Pet
+                4. Produto
+                5. Veterinário
+                6. Consulta
+                7. Prontuário
+                0. Sair do Programa.
                 
-                =================================================================
+                =================================================================================
+                """);
+    }
+
+    private static void mostrarMenuFuncionario() {
+        System.out.println("""
+                ============================= OPERAÇÕES - FUNCIONÁRIO ===========================
+                
+                1. Buscar funcionário por CPF.
+                2. Cadastrar funcionário.
+                3. Listar todos os funcionários.
+                4. Atualizar funcionário.
+                5. Excluir funcionário.
+                0. Voltar.
+                
+                =================================================================================
                 """);
     }
 
