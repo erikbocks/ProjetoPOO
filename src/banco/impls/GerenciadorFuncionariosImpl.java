@@ -117,7 +117,46 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
 
     @Override
     public void atualizar(Funcionario entidade) {
+        try (var conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO)) {
+            conn.setAutoCommit(false);
 
+            String sqlFuncionario = "UPDATE funcionarios SET nome = ?, email = ?, telefone = ?, data_nascimento = ?, ativo = ?, senha = ? WHERE cpf = ?";
+            try (PreparedStatement pstmtFuncionario = conn.prepareStatement(sqlFuncionario)) {
+                pstmtFuncionario.setString(1, entidade.getNome());
+                pstmtFuncionario.setString(2, entidade.getEmail());
+                pstmtFuncionario.setString(3, entidade.getTelefone());
+                pstmtFuncionario.setString(4, entidade.getDataDeNascimento().toString());
+                pstmtFuncionario.setBoolean(5, entidade.getAtivo());
+                pstmtFuncionario.setString(6, entidade.getSenha());
+                pstmtFuncionario.setString(7, entidade.getCpf());
+                pstmtFuncionario.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Erro ao atualizar funcionário: " + e.getMessage());
+                conn.rollback();
+                return;
+            }
+
+            String sqlEndereco = "UPDATE enderecos_funcionarios SET estado = ?, cidade = ?, rua = ?, numero = ?, complemento = ? WHERE cpf_funcionarios = ?";
+            try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco)) {
+                Endereco endereco = entidade.getEndereco();
+                pstmtEndereco.setString(1, endereco.getEstado().toString());
+                pstmtEndereco.setString(2, endereco.getCidade());
+                pstmtEndereco.setString(3, endereco.getRua());
+                pstmtEndereco.setInt(4, endereco.getNumero());
+                pstmtEndereco.setString(5, endereco.getComplemento());
+                pstmtEndereco.setString(6, entidade.getCpf());
+                pstmtEndereco.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Erro ao atualizar endereço de funcionário: " + e.getMessage());
+                conn.rollback();
+                return;
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar funcionário: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
