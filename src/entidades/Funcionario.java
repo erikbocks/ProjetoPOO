@@ -1,5 +1,7 @@
 package entidades;
 
+import utils.Formatadores;
+
 import java.time.LocalDateTime;
 
 public class Funcionario extends Usuario {
@@ -23,7 +25,7 @@ public class Funcionario extends Usuario {
 
     @Override
     public String toString() {
-        return String.format("Funcionario: [cpf=%s, nome=%s]", super.cpf, super.nome);
+        return String.format("Funcionario: [cpf=%s, nome=%s, email=%s, telefone=%s, dataDeNascimento=%s]", super.cpf, super.nome, super.email, super.telefone, Formatadores.formatarData(super.dataDeNascimento));
     }
 
     public boolean autenticar(String senha) {

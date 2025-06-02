@@ -5,6 +5,7 @@ import entidades.Endereco;
 import entidades.Funcionario;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ServicoFuncionarioImpl implements ServicoFuncionario {
     private Leitor leitor;
@@ -47,8 +48,6 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
 
     @Override
     public Funcionario cadastrarFuncionario() {
-        autenticarFuncionario();
-
         String cpfNovoFuncionario;
         while (true) {
             cpfNovoFuncionario = leitor.lerCPF("Digite o CPF do novo funcionário");
@@ -70,5 +69,10 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
         Funcionario novoFuncionario = new Funcionario(cpfNovoFuncionario, celular, dataDeNascimento, email, nome, senha, endereco);
 
         return gerenciadorFuncionarios.inserir(novoFuncionario);
+    }
+
+    @Override
+    public List<Funcionario> listarTodosAtivos() {
+        return gerenciadorFuncionarios.listarTodos();
     }
 }

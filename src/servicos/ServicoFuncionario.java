@@ -2,6 +2,8 @@ package servicos;
 
 import entidades.Funcionario;
 
+import java.util.List;
+
 public interface ServicoFuncionario {
 
     /**
@@ -16,4 +18,10 @@ public interface ServicoFuncionario {
      * @return o novo funcionário cadastrado.
      */
     Funcionario cadastrarFuncionario();
+
+    /**
+     * Retorna uma lista de todos os funcionários cadastrados, que têm o atributo ativo = true.
+     * @return uma lista de funcionarios.
+     */
+    List<Funcionario> listarTodosAtivos();
 }
