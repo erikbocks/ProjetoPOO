@@ -1,3 +1,4 @@
+import banco.impls.GerenciadorFuncionariosImpl;
 import entidades.Cliente;
 import entidades.Consulta;
 import entidades.Endereco;
@@ -10,6 +11,8 @@ import entidades.Usuario;
 import entidades.Venda;
 import entidades.Veterinario;
 import servicos.Leitor;
+import servicos.ServicoFuncionario;
+import servicos.ServicoFuncionarioImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import java.util.Optional;
 
 public class Principal {
     public static Leitor leitor = new Leitor();
+    private ServicoFuncionario servicoFuncionario = new ServicoFuncionarioImpl(leitor, new GerenciadorFuncionariosImpl());
     public static List<Funcionario> funcionarios = new ArrayList<>();
     public static List<Cliente> clientes = new ArrayList<>();
     public static List<Pet> pets = new ArrayList<>();
@@ -27,36 +31,33 @@ public class Principal {
     public static List<Consulta> consultas = new ArrayList<>();
     public static List<Prontuario> prontuarios = new ArrayList<>();
 
-    public static void main(String[] args) {
-        int opcao;
-
-        // Dados mockados para testes
-        funcionarios.add(new Funcionario("11111111111", "11111111111", LocalDateTime.now(), "roberson@email.com", "Roberson", "senha", new Endereco("Rua 1", 123, "Centro", "São Paulo", Endereco.Estado.SC)));
-        clientes.add(new Cliente("22222222222", "22222222222", LocalDateTime.now(), "roberson@email.com", "Bock", new Endereco("Rua 1", 123, "Centro", "São Paulo", Endereco.Estado.SC)));
-        pets.add(new Pet("Tobby", Pet.Especie.CACHORRO, "Vira Lata", LocalDateTime.now(), Pet.Sexo.MACHO, clientes.getFirst()));
-        pets.add(new Pet("Mimi", Pet.Especie.GATO, "Siamês", LocalDateTime.now(), Pet.Sexo.FEMEA, clientes.getFirst()));
-        produtos.add(new Produto("Ração", "Ração para cachorro", 10, 50.0, Produto.TipoProduto.ALIMENTO));
-        produtos.add(new Produto("Banho", "Banho para cachorro", 1, 100.0, Produto.TipoProduto.SERVICO));
-        produtos.add(new Produto("Vacina", "Vacina para cachorro", 1, 200.0, Produto.TipoProduto.MEDICAMENTO));
-        produtos.add(new Produto("Coleira", "Coleira para cachorro", 10, 20.0, Produto.TipoProduto.ACESSORIO));
-        produtos.add(new Produto("Brinquedo", "Brinquedo para cachorro", 10, 30.0, Produto.TipoProduto.BRINQUEDO));
-        vendas.add(new Venda(LocalDateTime.now(), clientes.getFirst(), funcionarios.getFirst()));
-        vendas.getFirst().fecharVenda(List.of(new ItemVenda(1, produtos.getFirst().getCodigo())), produtos);
-        veterinarios.add(new Veterinario("33333333333", "33333333333", LocalDateTime.now(), "vini@email.com", "Vini", new Endereco("Rua 1", 123, "Centro", "São Paulo", Endereco.Estado.SC), "Dermatologia", "123456"));
-        consultas.add(new Consulta(pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now()));
-        prontuarios.add(new Prontuario("123456", pets.getFirst(), veterinarios.getFirst(), LocalDateTime.now().minusDays(2), LocalDateTime.now(), Consulta.Status.ABERTA));
+    public void executar() {
+        int opcaoEntidade, opcaoOperacao;
 
         while (true) {
             mostrarMenuEntidades();
 
-            opcao = leitor.lerInt("Qual entidade você gostaria de selecionar?");
+            opcaoEntidade = leitor.lerInt("Qual entidade você gostaria de selecionar?");
 
-            switch (opcao) {
+            switch (opcaoEntidade) {
                 case 0:
                     System.out.println("Saindo do sistema...");
                     return;
                 case 1:
                     mostrarMenuFuncionario();
+
+                    opcaoOperacao = leitor.lerInt("Qual operação deseja realizar?");
+
+                    switch (opcaoOperacao) {
+                        case 0:
+                            System.out.println("Retornando ao menu principal...");
+                            break;
+                        case 1:
+                            cadastrarFuncionario();
+                            break;
+                        default:
+                            System.err.println("Opção inválida. Tente novamente.");
+                    }
                     break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
@@ -65,7 +66,7 @@ public class Principal {
         }
     }
 
-    private static void mostrarMenuEntidades() {
+    private void mostrarMenuEntidades() {
         System.out.println("""
                 ============================= MENU - ENTIDADES ==================================
                 
@@ -82,53 +83,28 @@ public class Principal {
                 """);
     }
 
-    private static void mostrarMenuFuncionario() {
+    private void mostrarMenuFuncionario() {
         System.out.println("""
                 ============================= OPERAÇÕES - FUNCIONÁRIO ===========================
                 
-                1. Buscar funcionário por CPF.
-                2. Cadastrar funcionário.
-                3. Listar todos os funcionários.
-                4. Atualizar funcionário.
-                5. Excluir funcionário.
+                1. Cadastrar funcionário.
+                2. Listar todos os funcionários.
+                3. Atualizar funcionário.
+                4. Excluir funcionário.
                 0. Voltar.
                 
                 =================================================================================
                 """);
     }
 
-    private static void cadastrarFuncionario() {
-        System.out.println("Boas vindas ao cadastro de funcionário!");
+    private void cadastrarFuncionario() {
+        try {
+            Funcionario funcionario = servicoFuncionario.cadastrarFuncionario();
 
-        Funcionario funcionario = autenticarFuncionario();
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return;
+            System.out.printf("Funcionário [%s] cadastrado com sucesso!", funcionario.getNome());
+        } catch (RuntimeException ex) {
+            System.err.println(ex.getMessage());
         }
-
-        String cpfDoFuncionario;
-        while (true) {
-            cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-            if (cpfCadastrado(cpfDoFuncionario, funcionarios)) {
-                System.err.println("CPF já cadastrado. Tente novamente.");
-            } else {
-                break;
-            }
-        }
-
-        String celular = leitor.lerCelular("Digite o celular do funcionário");
-        LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do funcionário");
-        String nome = leitor.lerString("Digite o nome do funcionário");
-        String email = leitor.lerString("Digite o email do funcionário");
-        String senha = leitor.lerSenha("Digite a nova senha do funcionário");
-        Endereco endereco = leitor.lerEndereco("Digite o endereço do funcionário");
-
-        Funcionario novoFuncionario = new Funcionario(cpfDoFuncionario, celular, dataDeNascimento, email, nome, senha, endereco);
-        funcionarios.add(novoFuncionario);
-
-        System.out.println("Funcionário " + novoFuncionario.getNome() + " cadastrado com sucesso!");
     }
 
     private static void cadastrarCliente() {
@@ -559,33 +535,6 @@ public class Principal {
      * @return o funcionário encontrado, null caso não encontre.
      */
     private static Funcionario autenticarFuncionario() {
-        System.out.println("Por favor, se autentique.");
-
-        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
-
-        Funcionario funcionario = funcionarios.stream().filter(f -> f.getCpf().equals(cpfDoFuncionario)).findFirst().orElse(null);
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return null;
-        }
-
-        int tentativasDeLogin = 0;
-
-        while (tentativasDeLogin != 3) {
-            System.out.println("Tentativa " + (tentativasDeLogin + 1) + " de 3");
-            String senha = leitor.lerString("Digite a sua senha");
-
-            if (funcionario.autenticar(senha)) {
-                System.out.println("Boas vindas, " + funcionario.getNome() + "!");
-                return funcionario;
-            } else {
-                System.err.println("Senha incorreta. Tente novamente.");
-                tentativasDeLogin++;
-            }
-        }
-
-        System.err.println("Número máximo de tentativas atingido. Cancelando autenticação.");
         return null;
     }
 

@@ -37,6 +37,23 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     }
 
     @Override
+    public boolean funcionarioCadastrado(String cpf) {
+        try (var conn = getConnectionWithFKEnabled()){
+            PreparedStatement pstmt = conn.prepareStatement("SELECT 1 FROM funcionarios WHERE cpf = ?");
+
+            pstmt.setString(1, cpf);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            return rs.next();
+        } catch (SQLException e) {
+            System.err.println("Erro ao verificar se funcionário está cadastrado: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public List<Funcionario> listarTodos() {
         List<Funcionario> funcionarios = new ArrayList<>();
 
