@@ -75,4 +75,69 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
     public List<Funcionario> listarTodosAtivos() {
         return gerenciadorFuncionarios.listarTodos();
     }
+
+    @Override
+    public void atualizarFuncionario() {
+        String cpf = leitor.lerCPF("Digite o CPF do funcionário à atualizar");
+
+        Funcionario funcionario = gerenciadorFuncionarios.buscarPorCpf(cpf);
+
+        if (funcionario == null) {
+            System.err.println("Nenhum funcionário encontrado para o CPF digitado.");
+            return;
+        }
+
+        String nome = leitor.lerString("Digite o novo nome para o funcionário (caso queira manter o anterior, pressione ENTER)");
+        String telefone = leitor.lerString("Digite o nome número de telefone para o funcionário (caso queira manter o anterior, pressione ENTER)");
+        String email = leitor.lerString("Digite o novo email do para o funcionário (caso queira manter o anterior, pressione ENTER)");
+        String senha = leitor.lerSenha("Digite a nova senha do funcionário (caso queira manter a anterior, pressione ENTER 2x");
+
+        funcionario.atualizarDados(nome, telefone, email, senha);
+
+        gerenciadorFuncionarios.atualizar(funcionario);
+
+        System.out.println("Funcionário atualizado com sucesso!");
+    }
+
+    @Override
+    public void atualizarEndereco() {
+        String cpf = leitor.lerCPF("Digite o CPF do funcionário à atualizar");
+
+        Funcionario funcionario = gerenciadorFuncionarios.buscarPorCpf(cpf);
+
+        if (funcionario == null) {
+            System.err.println("Nenhum funcionário encontrado para o CPF digitado.");
+            return;
+        }
+
+        Endereco novaoEndereco = leitor.lerEndereco("Digite o novo endereço do funcionário.");
+
+        funcionario.getEndereco().atualizarEndereco(novaoEndereco);
+
+        gerenciadorFuncionarios.atualizarEndereco(funcionario.getCpf(), funcionario.getEndereco());
+
+        System.out.println("Endereço do usuário atualizado com sucesso!!");
+    }
+
+    @Override
+    public void atualizarDataDeNascimento() {
+        String cpf = leitor.lerCPF("Digite o CPF do funcionário à atualizar");
+
+        Funcionario funcionario = gerenciadorFuncionarios.buscarPorCpf(cpf);
+
+        if (funcionario == null) {
+            System.err.println("Nenhum funcionário encontrado para o CPF digitado.");
+            return;
+        }
+
+        LocalDateTime novaData = leitor.lerData("Digite a nova data de nascimento do funcionário.");
+
+        if (!funcionario.getDataDeNascimento().isEqual(novaData)) {
+            funcionario.setDataDeNascimento(novaData);
+        }
+
+        gerenciadorFuncionarios.atualizar(funcionario);
+
+        System.out.println("Data de nascimento atualizada com sucesso.");
+    }
 }

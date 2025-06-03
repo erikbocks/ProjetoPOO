@@ -31,4 +31,19 @@ public class Funcionario extends Usuario {
     public boolean autenticar(String senha) {
         return this.senha.equals(senha);
     }
+
+    public void atualizarDados(String nome, String telefone, String email, String senha) {
+        if (!nome.isBlank() && !this.nome.equals(nome)) {
+            this.nome = nome;
+        }
+        if (!telefone.isBlank() && !this.telefone.equals(telefone)) {
+            this.telefone = telefone;
+        }
+        if (!email.isBlank() && !this.email.equals(email)) {
+            this.email = email;
+        }
+        if (!senha.isBlank() && !this.senha.equals(senha)) {
+            this.senha = senha;
+        }
+    }
 }

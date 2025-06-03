@@ -54,6 +54,34 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     }
 
     @Override
+    public void atualizarEndereco(String cpf, Endereco endereco) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
+
+            String sqlEndereco = "UPDATE enderecos_funcionarios SET estado = ?, cidade = ?, rua = ?, numero = ?, complemento = ? WHERE cpf_funcionarios = ?";
+
+            try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco)) {
+                pstmtEndereco.setString(1, endereco.getEstado().toString());
+                pstmtEndereco.setString(2, endereco.getCidade());
+                pstmtEndereco.setString(3, endereco.getRua());
+                pstmtEndereco.setInt(4, endereco.getNumero());
+                pstmtEndereco.setString(5, endereco.getComplemento());
+                pstmtEndereco.setString(6, cpf);
+                pstmtEndereco.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Erro ao atualizar endereço de funcionário: " + e.getMessage());
+                conn.rollback();
+                return;
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public List<Funcionario> listarTodos() {
         List<Funcionario> funcionarios = new ArrayList<>();
 
@@ -125,7 +153,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
                 System.err.println("Erro ao buscar ID do endereço: " + e.getMessage());
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao inserir funcionário: " + e.getMessage());
+            System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -154,25 +182,9 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
                 return;
             }
 
-            String sqlEndereco = "UPDATE enderecos_funcionarios SET estado = ?, cidade = ?, rua = ?, numero = ?, complemento = ? WHERE cpf_funcionarios = ?";
-            try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco)) {
-                Endereco endereco = entidade.getEndereco();
-                pstmtEndereco.setString(1, endereco.getEstado().toString());
-                pstmtEndereco.setString(2, endereco.getCidade());
-                pstmtEndereco.setString(3, endereco.getRua());
-                pstmtEndereco.setInt(4, endereco.getNumero());
-                pstmtEndereco.setString(5, endereco.getComplemento());
-                pstmtEndereco.setString(6, entidade.getCpf());
-                pstmtEndereco.executeUpdate();
-            } catch (SQLException e) {
-                System.err.println("Erro ao atualizar endereço de funcionário: " + e.getMessage());
-                conn.rollback();
-                return;
-            }
-
             conn.commit();
         } catch (SQLException e) {
-            System.err.println("Erro ao atualizar funcionário: " + e.getMessage());
+            System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -194,7 +206,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
 
             conn.commit();
         } catch (SQLException e) {
-            System.err.println("Erro ao excluir funcionário: " + e.getMessage());
+            System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -68,6 +68,15 @@ public class Principal {
                             case 2:
                                 listarFuncionarios();
                                 break;
+                            case 3:
+                                atualizarFuncionario();
+                                break;
+                            case 4:
+                                atualizarEnderecoFuncionario();
+                                break;
+                            case 5:
+                                atualizarNascimentoFuncionario();
+                                break;
                             default:
                                 System.err.println("Opção inválida. Tente novamente.");
                         }
@@ -96,6 +105,8 @@ public class Principal {
                 """);
     }
 
+    // FUNCIONÁRIO
+
     private void mostrarMenuFuncionario() {
         System.out.println("""
                 ============================= OPERAÇÕES - FUNCIONÁRIO ===========================
@@ -103,7 +114,9 @@ public class Principal {
                 1. Cadastrar funcionário.
                 2. Listar todos os funcionários ativos.
                 3. Atualizar funcionário.
-                4. Excluir funcionário.
+                4. Atualizar endereço de funcionário.
+                5. Atualizar data de nascimento de funcionário.
+                6. Excluir funcionário.
                 0. Voltar.
                 
                 =================================================================================
@@ -118,6 +131,25 @@ public class Principal {
         } catch (RuntimeException ex) {
             System.err.println(ex.getMessage());
         }
+    }
+
+    private void listarFuncionarios() {
+        System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
+        List<Funcionario> funcionarios = servicoFuncionario.listarTodosAtivos();
+        funcionarios.forEach(System.out::println);
+        System.out.println("===============================================");
+    }
+
+    private void atualizarFuncionario() {
+        servicoFuncionario.atualizarFuncionario();
+    }
+
+    private void atualizarEnderecoFuncionario() {
+        servicoFuncionario.atualizarEndereco();
+    }
+
+    private void atualizarNascimentoFuncionario() {
+        servicoFuncionario.atualizarDataDeNascimento();
     }
 
     private  void cadastrarCliente() {
@@ -428,13 +460,6 @@ public class Principal {
 
         consultas.set(indiceConsulta, consulta);
         prontuarios.add(prontuario);
-    }
-
-    private void listarFuncionarios() {
-        System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
-        List<Funcionario> funcionarios = servicoFuncionario.listarTodosAtivos();
-        funcionarios.forEach(System.out::println);
-        System.out.println("===============================================");
     }
 
     private  void listarClientes() {

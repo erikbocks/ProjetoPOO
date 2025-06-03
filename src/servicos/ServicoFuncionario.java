@@ -24,4 +24,19 @@ public interface ServicoFuncionario {
      * @return uma lista de funcionarios.
      */
     List<Funcionario> listarTodosAtivos();
+
+    /**
+     * Busca um funcionario cadastrado no banco, e então atualiza ele com os novos atributos informados pelo usuário.
+     */
+    void atualizarFuncionario();
+
+    /**
+     * Busca um funcionário cadastrado no banco e atualiza seu endereço.
+     */
+    void atualizarEndereco();
+
+    /**
+     * Busca um funcionário cadastrado no banco e atualiza sua data de nascimento.
+     */
+    void atualizarDataDeNascimento();
 }

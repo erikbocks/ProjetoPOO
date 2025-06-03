@@ -19,6 +19,24 @@ public class Endereco {
         this.estado = estadoEnum;
     }
 
+    public void atualizarEndereco(Endereco endereco) {
+        if (!endereco.getRua().isBlank() && !this.rua.equals(endereco.getRua())) {
+            this.rua = endereco.getRua();
+        }
+        if (this.numero != endereco.getNumero()) {
+            this.numero = endereco.getNumero();
+        }
+        if (!endereco.getComplemento().isBlank() && !this.complemento.equals(endereco.getComplemento())) {
+            this.complemento = endereco.getComplemento();
+        }
+        if (!endereco.getCidade().isBlank() && !this.cidade.equals(endereco.getComplemento())) {
+            this.cidade = endereco.getCidade();
+        }
+        if (!this.estado.equals(endereco.getEstado())) {
+            this.estado = endereco.getEstado();
+        }
+    }
+
     public enum Estado {
         SC,
         RS
