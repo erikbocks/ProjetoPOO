@@ -39,4 +39,14 @@ public interface ServicoFuncionario {
      * Busca um funcionário cadastrado no banco e atualiza sua data de nascimento.
      */
     void atualizarDataDeNascimento();
+
+    /**
+     * Desativa um funcionário cadastrado.
+     */
+    void desativarFuncionario();
+
+    /**
+     * Remove um funcionário cadastrado.
+     */
+    void removerFuncionario();
 }

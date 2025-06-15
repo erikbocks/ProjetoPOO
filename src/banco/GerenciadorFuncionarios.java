@@ -9,4 +9,6 @@ public interface GerenciadorFuncionarios extends GerenciadorBase<Funcionario> {
     boolean funcionarioCadastrado(String cpf);
 
     void atualizarEndereco(String cpf, Endereco endereco);
+
+    void desativarFuncionario(String cpf);
 }

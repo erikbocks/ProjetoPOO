@@ -82,6 +82,29 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     }
 
     @Override
+    public void desativarFuncionario(String cpf) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
+
+            String sqlDesativarFuncionario = "UPDATE funcionarios SET ativo=? WHERE cpf=?";
+            try (var pstmt = conn.prepareStatement(sqlDesativarFuncionario)) {
+                pstmt.setBoolean(1, false);
+                pstmt.setString(2, cpf);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Erro ao desativar funcionário. Revertendo...");
+                conn.rollback();
+                return;
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public List<Funcionario> listarTodos() {
         List<Funcionario> funcionarios = new ArrayList<>();
 

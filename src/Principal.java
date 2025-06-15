@@ -77,6 +77,12 @@ public class Principal {
                             case 5:
                                 atualizarNascimentoFuncionario();
                                 break;
+                            case 6:
+                                desativarFuncionario();
+                                break;
+                            case 7:
+                                removerFuncionario();
+                                break;
                             default:
                                 System.err.println("Opção inválida. Tente novamente.");
                         }
@@ -116,7 +122,8 @@ public class Principal {
                 3. Atualizar funcionário.
                 4. Atualizar endereço de funcionário.
                 5. Atualizar data de nascimento de funcionário.
-                6. Excluir funcionário.
+                6. Desativar funcionário.
+                7. Excluir funcionário.
                 0. Voltar.
                 
                 =================================================================================
@@ -150,6 +157,14 @@ public class Principal {
 
     private void atualizarNascimentoFuncionario() {
         servicoFuncionario.atualizarDataDeNascimento();
+    }
+
+    private void desativarFuncionario() {
+        servicoFuncionario.desativarFuncionario();
+    }
+
+    private void removerFuncionario() {
+        servicoFuncionario.removerFuncionario();
     }
 
     private  void cadastrarCliente() {

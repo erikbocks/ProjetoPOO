@@ -121,7 +121,7 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
 
     @Override
     public void atualizarDataDeNascimento() {
-        String cpf = leitor.lerCPF("Digite o CPF do funcionário à atualizar");
+        String cpf = leitor.lerCPF("Digite o CPF do funcionário a atualizar");
 
         Funcionario funcionario = gerenciadorFuncionarios.buscarPorCpf(cpf);
 
@@ -139,5 +139,37 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
         gerenciadorFuncionarios.atualizar(funcionario);
 
         System.out.println("Data de nascimento atualizada com sucesso.");
+    }
+
+    @Override
+    public void desativarFuncionario() {
+        String cpf = leitor.lerCPF("Digite o CPF do funcionário a ser desativado");
+
+        Funcionario funcionario = gerenciadorFuncionarios.buscarPorCpf(cpf);
+
+        if (funcionario == null) {
+            System.err.println("Nenhum funcionário encontrado para o CPF digitado.");
+            return;
+        }
+
+        gerenciadorFuncionarios.desativarFuncionario(funcionario.getCpf());
+
+        System.out.printf("Funcionário [%s] desativado com sucesso!\n", funcionario.getNome());
+    }
+
+    @Override
+    public void removerFuncionario() {
+        String cpf = leitor.lerCPF("Digite o CPF do funcionário a ser removido");
+
+        Funcionario funcionario = gerenciadorFuncionarios.buscarPorCpf(cpf);
+
+        if (funcionario == null) {
+            System.err.println("Nenhum funcionário encontrado para o CPF digitado.");
+            return;
+        }
+
+        gerenciadorFuncionarios.excluir(funcionario);
+
+        System.out.printf("Funcionário [%s] excluído com sucesso.\n", funcionario.getNome());
     }
 }

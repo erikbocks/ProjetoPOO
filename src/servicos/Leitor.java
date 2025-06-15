@@ -84,7 +84,7 @@ public class Leitor {
             int numero = lerInt("Digite o número");
             String complemento = lerString("Digite o complemento (Opcional)");
 
-            return new Endereco(rua, numero, complemento, cidade, estadoEnum);
+            return new Endereco(rua, numero, complemento.isBlank() ? null : complemento, cidade, estadoEnum);
         }
     }
 
