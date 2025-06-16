@@ -12,7 +12,7 @@ import entidades.Venda;
 import entidades.Veterinario;
 import servicos.Leitor;
 import servicos.ServicoFuncionario;
-import servicos.ServicoFuncionarioImpl;
+import servicos.impl.ServicoFuncionarioImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,78 +20,49 @@ import java.util.List;
 import java.util.Optional;
 
 public class Principal {
-    public  Leitor leitor = new Leitor();
+    public Leitor leitor = new Leitor();
     private ServicoFuncionario servicoFuncionario = new ServicoFuncionarioImpl(leitor, new GerenciadorFuncionariosImpl());
-    public  List<Cliente> clientes = new ArrayList<>();
-    public  List<Pet> pets = new ArrayList<>();
-    public  List<Produto> produtos = new ArrayList<>();
-    public  List<Venda> vendas = new ArrayList<>();
-    public  List<Veterinario> veterinarios = new ArrayList<>();
-    public  List<Consulta> consultas = new ArrayList<>();
-    public  List<Prontuario> prontuarios = new ArrayList<>();
+    public List<Cliente> clientes = new ArrayList<>();
+    public List<Pet> pets = new ArrayList<>();
+    public List<Produto> produtos = new ArrayList<>();
+    public List<Venda> vendas = new ArrayList<>();
+    public List<Veterinario> veterinarios = new ArrayList<>();
+    public List<Consulta> consultas = new ArrayList<>();
+    public List<Prontuario> prontuarios = new ArrayList<>();
 
     public void executar() {
         Funcionario funcionarioLogado = null;
 
         System.out.println("Boas vindas ao Gerenciador de PetShops do Böck!!");
-            while(funcionarioLogado == null) {
-                try {
-                    funcionarioLogado = servicoFuncionario.autenticarFuncionario();
-                } catch (RuntimeException e) {
-                    System.err.println("Não foi possível autenticar o funcionário.");
-                }
+        while (funcionarioLogado == null) {
+            try {
+                funcionarioLogado = servicoFuncionario.autenticarFuncionario();
+            } catch (RuntimeException e) {
+                System.err.println("Não foi possível autenticar o funcionário.");
             }
+        }
 
-            int opcaoEntidade, opcaoOperacao;
+        int opcaoEntidade;
 
-            while (true) {
-                mostrarMenuEntidades();
+        while (true) {
+            mostrarMenuEntidades();
 
-                opcaoEntidade = leitor.lerInt("Qual entidade você gostaria de selecionar?");
+            opcaoEntidade = leitor.lerInt("Qual entidade você gostaria de selecionar?");
 
-                switch (opcaoEntidade) {
-                    case 0:
-                        System.out.println("Saindo do sistema...");
-                        return;
-                    case 1:
-                        mostrarMenuFuncionario();
-
-                        opcaoOperacao = leitor.lerInt("Qual operação deseja realizar?");
-
-                        switch (opcaoOperacao) {
-                            case 0:
-                                System.out.println("Retornando ao menu principal...");
-                                break;
-                            case 1:
-                                cadastrarFuncionario();
-                                break;
-                            case 2:
-                                listarFuncionarios();
-                                break;
-                            case 3:
-                                atualizarFuncionario();
-                                break;
-                            case 4:
-                                atualizarEnderecoFuncionario();
-                                break;
-                            case 5:
-                                atualizarNascimentoFuncionario();
-                                break;
-                            case 6:
-                                desativarFuncionario();
-                                break;
-                            case 7:
-                                removerFuncionario();
-                                break;
-                            default:
-                                System.err.println("Opção inválida. Tente novamente.");
-                        }
-                        break;
-                    default:
-                        System.err.println("Opção inválida. Tente novamente.");
-                        break;
-                }
+            switch (opcaoEntidade) {
+                case 0:
+                    System.out.println("Saindo do sistema...");
+                    return;
+                case 1:
+                    servicoFuncionario.mostrarMenu();
+                    break;
+                case 2:
+                    break;
+                default:
+                    System.err.println("Opção inválida. Tente novamente.");
+                    break;
             }
+        }
     }
 
     private void mostrarMenuEntidades() {
@@ -111,63 +82,7 @@ public class Principal {
                 """);
     }
 
-    // FUNCIONÁRIO
-
-    private void mostrarMenuFuncionario() {
-        System.out.println("""
-                ============================= OPERAÇÕES - FUNCIONÁRIO ===========================
-                
-                1. Cadastrar funcionário.
-                2. Listar todos os funcionários ativos.
-                3. Atualizar funcionário.
-                4. Atualizar endereço de funcionário.
-                5. Atualizar data de nascimento de funcionário.
-                6. Desativar funcionário.
-                7. Excluir funcionário.
-                0. Voltar.
-                
-                =================================================================================
-                """);
-    }
-
-    private void cadastrarFuncionario() {
-        try {
-            Funcionario funcionario = servicoFuncionario.cadastrarFuncionario();
-
-            System.out.printf("Funcionário [%s] cadastrado com sucesso!\n", funcionario.getNome());
-        } catch (RuntimeException ex) {
-            System.err.println(ex.getMessage());
-        }
-    }
-
-    private void listarFuncionarios() {
-        System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
-        List<Funcionario> funcionarios = servicoFuncionario.listarTodosAtivos();
-        funcionarios.forEach(System.out::println);
-        System.out.println("===============================================");
-    }
-
-    private void atualizarFuncionario() {
-        servicoFuncionario.atualizarFuncionario();
-    }
-
-    private void atualizarEnderecoFuncionario() {
-        servicoFuncionario.atualizarEndereco();
-    }
-
-    private void atualizarNascimentoFuncionario() {
-        servicoFuncionario.atualizarDataDeNascimento();
-    }
-
-    private void desativarFuncionario() {
-        servicoFuncionario.desativarFuncionario();
-    }
-
-    private void removerFuncionario() {
-        servicoFuncionario.removerFuncionario();
-    }
-
-    private  void cadastrarCliente() {
+    private void cadastrarCliente() {
         System.out.println("Boas vindas ao cadastro de cliente!");
 
         Funcionario funcionario = autenticarFuncionario();
@@ -200,7 +115,7 @@ public class Principal {
         System.out.println("Cliente " + novoCliente.getNome() + " cadastrado com sucesso!");
     }
 
-    private  void cadastrarPet() {
+    private void cadastrarPet() {
         System.out.println("Boas vindas ao cadastro de pet!");
 
         Funcionario funcionario = autenticarFuncionario();
@@ -253,7 +168,7 @@ public class Principal {
         System.out.println("Pet " + novoPet.getNome() + " cadastrado com sucesso!");
     }
 
-    private  void cadastrarProduto() {
+    private void cadastrarProduto() {
         System.out.println("Boas vindas ao cadastro de produto!");
 
         Funcionario funcionario = autenticarFuncionario();
@@ -288,7 +203,7 @@ public class Principal {
         System.out.println("Produto " + novoProduto.getNome() + " cadastrado com sucesso!");
     }
 
-    private  void cadastrarVenda() {
+    private void cadastrarVenda() {
         System.out.println("Boas vindas ao cadastro de vendas!");
 
         Funcionario funcionario = autenticarFuncionario();
@@ -352,7 +267,7 @@ public class Principal {
         vendas.add(venda);
     }
 
-    private  void cadastrarVeterinario() {
+    private void cadastrarVeterinario() {
         System.out.println("Boas vindas ao cadastro de veterinário!");
 
         Funcionario funcionario = autenticarFuncionario();
@@ -385,7 +300,7 @@ public class Principal {
         veterinarios.add(novoVeterinario);
     }
 
-    private  void cadastrarConsulta() {
+    private void cadastrarConsulta() {
         System.out.println("Boas vindas ao cadastro de consultas!");
 
         Funcionario funcionario = autenticarFuncionario();
@@ -448,7 +363,7 @@ public class Principal {
         consultas.add(novaConsulta);
     }
 
-    private  void gerarProntuario() {
+    private void gerarProntuario() {
         System.out.println("Boas vindas à geração de Prontuário!");
 
         Funcionario funcionario = autenticarFuncionario();
@@ -477,19 +392,19 @@ public class Principal {
         prontuarios.add(prontuario);
     }
 
-    private  void listarClientes() {
+    private void listarClientes() {
         System.out.println("=========== LISTA DE CLIENTES ==============");
         clientes.forEach(System.out::println);
         System.out.println("============================================");
     }
 
-    private  void listarPets() {
+    private void listarPets() {
         System.out.println("=========== LISTA DE PETS =============");
         pets.forEach(System.out::println);
         System.out.println("========================================");
     }
 
-    private  void listarPetsDoCliente() {
+    private void listarPetsDoCliente() {
         String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
 
         Optional<Cliente> possivelCliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoCliente)).findFirst();
@@ -506,13 +421,13 @@ public class Principal {
         System.out.println("===================================================");
     }
 
-    private  void listarProdutos() {
+    private void listarProdutos() {
         System.out.println("=========== LISTA DE PRODUTOS =============");
         produtos.forEach(System.out::println);
         System.out.println("============================================");
     }
 
-    private  void listarVendas() {
+    private void listarVendas() {
         System.out.println("""
                 =========== STATUS DE VENDA =============
                 ABERTA
@@ -539,19 +454,19 @@ public class Principal {
         System.out.println("===========================================");
     }
 
-    private  void listarVeterinarios() {
+    private void listarVeterinarios() {
         System.out.println("=========== LISTA DE VETERINÁRIOS =============");
         veterinarios.forEach(System.out::println);
         System.out.println("===============================================");
     }
 
-    private  void listarProntuarios() {
+    private void listarProntuarios() {
         System.out.println("=========== LISTA DE PRONTUÁRIOS =============");
         prontuarios.forEach(System.out::println);
         System.out.println("===============================================");
     }
 
-    private  void listarConsultas() {
+    private void listarConsultas() {
         System.out.println("""
                 =========== STATUS DE CONSULTAS ============
                 ABERTA
@@ -571,13 +486,13 @@ public class Principal {
         System.out.println("============================================");
     }
 
-    private  void listarConsultasEmAberto() {
+    private void listarConsultasEmAberto() {
         System.out.println("=========== LISTA DE CONSULTAS =============");
         consultas.stream().filter(c -> c.getStatus() == Consulta.Status.ABERTA).forEach(System.out::println);
         System.out.println("============================================");
     }
 
-    private  void listarProdutosCadastradosEmEstoque() {
+    private void listarProdutosCadastradosEmEstoque() {
         System.out.println("=========== LISTA DE PRODUTOS =============");
         produtos.stream().filter(p -> p.getQuantidade() > 0).forEach(System.out::println);
         System.out.println("============================================");
@@ -589,7 +504,7 @@ public class Principal {
      * @return o funcionário encontrado, null caso não encontre.
      */
     private Funcionario autenticarFuncionario() {
-       return null;
+        return null;
     }
 
     /**
@@ -599,7 +514,7 @@ public class Principal {
      * @param lista lista com as entidades.
      * @return true se o CPF já foi cadastrado, false caso contrário.
      */
-    private  boolean cpfCadastrado(String cpf, List<? extends Usuario> lista) {
+    private boolean cpfCadastrado(String cpf, List<? extends Usuario> lista) {
         return lista.stream().anyMatch(u -> u.getCpf().equals(cpf));
     }
 }

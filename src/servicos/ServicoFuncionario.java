@@ -7,6 +7,11 @@ import java.util.List;
 public interface ServicoFuncionario {
 
     /**
+     * Mostra o menu de opções.
+     */
+    void mostrarMenu();
+
+    /**
      * Encontra o funcionário pelo CPF digitado e o autentica por meio de sua senha.
      *
      * @return o funcionário encontrado, null caso não encontre.

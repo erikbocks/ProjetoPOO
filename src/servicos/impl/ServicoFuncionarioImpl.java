@@ -1,8 +1,10 @@
-package servicos;
+package servicos.impl;
 
 import banco.GerenciadorFuncionarios;
 import entidades.Endereco;
 import entidades.Funcionario;
+import servicos.Leitor;
+import servicos.ServicoFuncionario;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +16,58 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
     public ServicoFuncionarioImpl(Leitor leitor, GerenciadorFuncionarios gerenciadorFuncionarios) {
         this.leitor = leitor;
         this.gerenciadorFuncionarios = gerenciadorFuncionarios;
+    }
+
+    @Override
+    public void mostrarMenu() {
+        System.out.println("""
+                ============================= OPERAÇÕES - FUNCIONÁRIO ===========================
+                
+                1. Cadastrar funcionário.
+                2. Listar todos os funcionários ativos.
+                3. Atualizar funcionário.
+                4. Atualizar endereço de funcionário.
+                5. Atualizar data de nascimento de funcionário.
+                6. Desativar funcionário.
+                7. Excluir funcionário.
+                0. Voltar.
+                
+                =================================================================================
+                """);
+
+        int opcaoOperacao = leitor.lerInt("Qual operação deseja realizar?");
+
+        switch (opcaoOperacao) {
+            case 0:
+                System.out.println("Retornando ao menu principal...");
+                break;
+            case 1:
+                cadastrarFuncionario();
+                break;
+            case 2:
+                System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
+                List<Funcionario> funcionarios = listarTodosAtivos();
+                funcionarios.forEach(System.out::println);
+                System.out.println("===============================================");
+                break;
+            case 3:
+                atualizarFuncionario();
+                break;
+            case 4:
+                atualizarEndereco();
+                break;
+            case 5:
+                atualizarDataDeNascimento();
+                break;
+            case 6:
+                desativarFuncionario();
+                break;
+            case 7:
+                removerFuncionario();
+                break;
+            default:
+                System.err.println("Opção inválida. Tente novamente.");
+        }
     }
 
     @Override
@@ -68,7 +122,11 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
 
         Funcionario novoFuncionario = new Funcionario(cpfNovoFuncionario, celular, dataDeNascimento, email, nome, senha, endereco);
 
-        return gerenciadorFuncionarios.inserir(novoFuncionario);
+        gerenciadorFuncionarios.inserir(novoFuncionario);
+
+        System.out.printf("Funcionário [%s] cadastrado com sucesso!", novoFuncionario.getNome());
+
+        return novoFuncionario;
     }
 
     @Override
