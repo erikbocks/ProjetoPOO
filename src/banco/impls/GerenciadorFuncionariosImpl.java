@@ -37,7 +37,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     }
 
     @Override
-    public boolean funcionarioCadastrado(String cpf) {
+    public boolean estaCadastrado(String cpf) {
         try (var conn = getConnectionWithFKEnabled()){
             PreparedStatement pstmt = conn.prepareStatement("SELECT 1 FROM funcionarios WHERE cpf = ?");
 
@@ -82,7 +82,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
     }
 
     @Override
-    public void desativarFuncionario(String cpf) {
+    public void desativar(String cpf) {
         try (var conn = getConnectionWithFKEnabled()) {
             conn.setAutoCommit(false);
 

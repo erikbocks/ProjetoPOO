@@ -106,7 +106,7 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
         while (true) {
             cpfNovoFuncionario = leitor.lerCPF("Digite o CPF do novo funcionário");
 
-            if (gerenciadorFuncionarios.funcionarioCadastrado(cpfNovoFuncionario)) {
+            if (gerenciadorFuncionarios.estaCadastrado(cpfNovoFuncionario)) {
                 System.err.println("CPF já cadastrado. Tente novamente.");
             } else {
                 break;
@@ -210,7 +210,7 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
             return;
         }
 
-        gerenciadorFuncionarios.desativarFuncionario(funcionario.getCpf());
+        gerenciadorFuncionarios.desativar(funcionario.getCpf());
 
         System.out.printf("Funcionário [%s] desativado com sucesso!\n", funcionario.getNome());
     }
