@@ -38,8 +38,12 @@ public class Endereco {
     }
 
     public enum Estado {
+        RS,
         SC,
-        RS
+        PR,
+        SP,
+        RJ,
+        MG,
     }
 
     public static Estado procurarEstadoPorSigla(String sigla) {

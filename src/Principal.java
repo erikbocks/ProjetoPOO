@@ -1,5 +1,6 @@
 import banco.impls.GerenciadorClientesImpl;
 import banco.impls.GerenciadorFuncionariosImpl;
+import banco.impls.GerenciadorPetsImpl;
 import entidades.Cliente;
 import entidades.Consulta;
 import entidades.Endereco;
@@ -14,8 +15,10 @@ import entidades.Veterinario;
 import servicos.Leitor;
 import servicos.ServicoCliente;
 import servicos.ServicoFuncionario;
+import servicos.ServicoPet;
 import servicos.impl.ServicoClienteImpl;
 import servicos.impl.ServicoFuncionarioImpl;
+import servicos.impl.ServicoPetImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,8 +29,7 @@ public class Principal {
     public Leitor leitor = new Leitor();
     private ServicoFuncionario servicoFuncionario = new ServicoFuncionarioImpl(leitor, new GerenciadorFuncionariosImpl());
     private ServicoCliente servicoCliente = new ServicoClienteImpl(leitor, new GerenciadorClientesImpl());
-    public List<Cliente> clientes = new ArrayList<>();
-    public List<Pet> pets = new ArrayList<>();
+    private ServicoPet servicoPet = new ServicoPetImpl(leitor, new GerenciadorPetsImpl(), new GerenciadorClientesImpl());
     public List<Produto> produtos = new ArrayList<>();
     public List<Venda> vendas = new ArrayList<>();
     public List<Veterinario> veterinarios = new ArrayList<>();
@@ -63,6 +65,9 @@ public class Principal {
                 case 2:
                     servicoCliente.mostrarMenu();
                     break;
+                case 3:
+                    servicoPet.mostrarMenu();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -85,92 +90,6 @@ public class Principal {
                 
                 =================================================================================
                 """);
-    }
-
-    private void cadastrarCliente() {
-        System.out.println("Boas vindas ao cadastro de cliente!");
-
-        Funcionario funcionario = autenticarFuncionario();
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return;
-        }
-
-        String cpfDoCliente;
-        while (true) {
-            cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
-
-            if (cpfCadastrado(cpfDoCliente, clientes)) {
-                System.err.println("CPF já cadastrado. Tente novamente.");
-            } else {
-                break;
-            }
-        }
-
-        String celular = leitor.lerCelular("Digite o celular do cliente");
-        LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do cliente");
-        String nome = leitor.lerString("Digite o nome do cliente");
-        String email = leitor.lerString("Digite o email do cliente");
-        Endereco endereco = leitor.lerEndereco("Digite o endereço do cliente");
-
-        Cliente novoCliente = new Cliente(cpfDoCliente, celular, dataDeNascimento, email, nome, endereco);
-        clientes.add(novoCliente);
-
-        System.out.println("Cliente " + novoCliente.getNome() + " cadastrado com sucesso!");
-    }
-
-    private void cadastrarPet() {
-        System.out.println("Boas vindas ao cadastro de pet!");
-
-        Funcionario funcionario = autenticarFuncionario();
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return;
-        }
-
-        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
-
-        Cliente cliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoTutor)).findFirst().orElse(null);
-
-        if (cliente == null) {
-            System.out.println("Cliente não encontrado. Tente novamente.");
-            return;
-        }
-
-        String nome = leitor.lerString("Digite o nome do pet");
-        Pet.Especie especie = leitor.lerEspecieDePet("""
-                ==========================================
-                Selecione a espécie do pet:
-                
-                CACHORRO
-                GATO
-                PEIXE
-                PASSARO
-                REPTIL
-                ROEDOR
-                OUTRO
-                ==========================================
-                
-                """);
-
-        String raca = leitor.lerString("Digite a raça do pet (Opcional)");
-        LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do pet");
-        Pet.Sexo sexo = leitor.lerSexoDePet("Digite o sexo do pet");
-
-        Pet novoPet = new Pet(nome, especie, raca, dataDeNascimento, sexo, cliente);
-
-        boolean desejaAdicionarObservacao = leitor.lerBoolean("Deseja adicionar observações ao pet?");
-
-        while (desejaAdicionarObservacao) {
-            String observacao = leitor.lerString("Digite a observação");
-            novoPet.adicionarObservacao(observacao);
-            desejaAdicionarObservacao = leitor.lerBoolean("Deseja adicionar mais observações?");
-        }
-
-        pets.add(novoPet);
-        System.out.println("Pet " + novoPet.getNome() + " cadastrado com sucesso!");
     }
 
     private void cadastrarProduto() {
@@ -220,7 +139,7 @@ public class Principal {
 
         String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
 
-        Cliente cliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoCliente)).findFirst().orElse(null);
+        Cliente cliente = null;
 
         if (cliente == null) {
             System.out.println("Cliente não encontrado. Tente novamente.");
@@ -317,7 +236,7 @@ public class Principal {
 
         String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
 
-        Cliente cliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoCliente)).findFirst().orElse(null);
+        Cliente cliente = null;
 
         if (cliente == null) {
             System.err.println("Cliente não encontrado. Tente novamente.");
@@ -333,7 +252,7 @@ public class Principal {
             return;
         }
 
-        List<Pet> petsDoCliente = pets.stream().filter(p -> p.getTutor().getCpf().equals(cpfDoCliente)).toList();
+        List<Pet> petsDoCliente = null;
 
         Pet petSelecionado;
 
@@ -397,22 +316,10 @@ public class Principal {
         prontuarios.add(prontuario);
     }
 
-    private void listarClientes() {
-        System.out.println("=========== LISTA DE CLIENTES ==============");
-        clientes.forEach(System.out::println);
-        System.out.println("============================================");
-    }
-
-    private void listarPets() {
-        System.out.println("=========== LISTA DE PETS =============");
-        pets.forEach(System.out::println);
-        System.out.println("========================================");
-    }
-
     private void listarPetsDoCliente() {
         String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
 
-        Optional<Cliente> possivelCliente = clientes.stream().filter(c -> c.getCpf().equals(cpfDoCliente)).findFirst();
+        Optional<Cliente> possivelCliente = null;
 
         if (possivelCliente.isEmpty()) {
             System.err.println("Cliente não encontrado. Tente novamente.");
@@ -422,7 +329,6 @@ public class Principal {
         Cliente cliente = possivelCliente.get();
 
         System.out.println("=========== LISTA DE PETS DO " + cliente.getNome() + " =============");
-        pets.stream().filter(p -> p.getTutor().getCpf().equals(cliente.getCpf())).forEach(System.out::println);
         System.out.println("===================================================");
     }
 
