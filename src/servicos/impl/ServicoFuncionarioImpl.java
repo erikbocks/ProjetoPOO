@@ -45,8 +45,8 @@ public class ServicoFuncionarioImpl implements ServicoFuncionario {
                 cadastrarFuncionario();
                 break;
             case 2:
-                System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
                 List<Funcionario> funcionarios = listarTodosAtivos();
+                System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
                 funcionarios.forEach(System.out::println);
                 System.out.println("===============================================");
                 break;

@@ -106,7 +106,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
         List<Funcionario> funcionarios = new ArrayList<>();
 
         try (var conn = getConnectionWithFKEnabled()) {
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM funcionarios f INNER JOIN enderecos_funcionarios ef ON f.cpf = ef.cpf_funcionarios");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM funcionarios f INNER JOIN enderecos_funcionarios ef ON f.cpf = ef.cpf_funcionarios WHERE ativo = true");
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {

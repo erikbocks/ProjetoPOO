@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GerenciadorClientesImpl implements GerenciadorClientes {
@@ -45,7 +46,21 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
 
     @Override
     public List<Cliente> listarTodos() {
-        return List.of();
+        List<Cliente> clientes = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM clientes c INNER JOIN enderecos_clientes ec ON ec.cpf_cliente = c.cpf WHERE ativo = true;");
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                clientes.add(mapearResultSetParaCliente(rs));
+            }
+
+        } catch (SQLException exception) {
+            System.err.println("Não foi possível listar os clientes: " + exception.getMessage());
+        }
+
+        return clientes;
     }
 
     @Override
@@ -111,6 +126,27 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
 
     @Override
     public void excluir(Cliente entidade) {
+    }
 
+    private Cliente mapearResultSetParaCliente(ResultSet rs) throws SQLException {
+        Cliente cliente = new Cliente();
+        cliente.setCpf(rs.getString(1));
+        cliente.setNome(rs.getString(2));
+        cliente.setEmail(rs.getString(3));
+        cliente.setTelefone(rs.getString(4));
+        cliente.setDataDeCadastro(LocalDateTime.parse(rs.getString(5)));
+        cliente.setDataDeNascimento(LocalDateTime.parse(rs.getString(6)));
+        cliente.setAtivo(rs.getBoolean(7));
+
+        Endereco endereco = new Endereco();
+        endereco.setId(rs.getInt(8));
+        endereco.setEstado(Endereco.procurarEstadoPorSigla(rs.getString(9)));
+        endereco.setCidade(rs.getString(10));
+        endereco.setRua(rs.getString(11));
+        endereco.setNumero(rs.getInt(12));
+        endereco.setComplemento(rs.getString(13));
+        cliente.setEndereco(endereco);
+
+        return cliente;
     }
 }

@@ -45,8 +45,8 @@ public class ServicoClienteImpl implements ServicoCliente {
                 cadastrarCliente();
                 break;
             case 2:
-                System.out.println("=========== LISTA DE CLIENTES =============");
                 List<Cliente> clientes = listarTodosAtivos();
+                System.out.println("=========== LISTA DE CLIENTES =============");
                 clientes.forEach(System.out::println);
                 System.out.println("============================================");
                 break;
@@ -100,7 +100,7 @@ public class ServicoClienteImpl implements ServicoCliente {
 
     @Override
     public List<Cliente> listarTodosAtivos() {
-        return List.of();
+        return gerenciadorClientes.listarTodos();
     }
 
     @Override

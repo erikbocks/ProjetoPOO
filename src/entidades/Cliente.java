@@ -9,6 +9,9 @@ public class Cliente extends Usuario {
         super(cpf, telefone, dataDeNascimento, email, nome, endereco);
     }
 
+    public Cliente() {
+    }
+
     @Override
     public String toString() {
         return String.format("Cliente[cpf=%s, telefone=%s, dataDeNascimento=%s, email=%s, nome=%s, endereco=%s]", cpf, telefone, dataDeNascimento.format(DateTimeFormatter.ofPattern("dd MMM yyyy - HH:mm", Locale.ROOT)), email, nome, endereco);
