@@ -1,12 +1,9 @@
 package banco.impls;
 
-import banco.GerenciadorBase;
 import banco.GerenciadorFuncionarios;
 import entidades.Endereco;
 import entidades.Funcionario;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,7 +35,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
 
     @Override
     public boolean estaCadastrado(String cpf) {
-        try (var conn = getConnectionWithFKEnabled()){
+        try (var conn = getConnectionWithFKEnabled()) {
             PreparedStatement pstmt = conn.prepareStatement("SELECT 1 FROM funcionarios WHERE cpf = ?");
 
             pstmt.setString(1, cpf);
@@ -256,15 +253,5 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
         funcionario.setEndereco(endereco);
 
         return funcionario;
-    }
-
-    private Connection getConnectionWithFKEnabled() throws SQLException {
-        Connection conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO);
-
-        try (var stmt = conn.createStatement()) {
-            stmt.execute("PRAGMA foreign_keys = ON;");
-        }
-
-        return conn;
     }
 }

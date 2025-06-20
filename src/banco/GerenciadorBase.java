@@ -1,5 +1,8 @@
 package banco;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface GerenciadorBase<T> {
@@ -29,4 +32,14 @@ public interface GerenciadorBase<T> {
      * @param entidade a entidade a ser removida.
      */
     void excluir(T entidade);
+
+    default Connection getConnectionWithFKEnabled() throws SQLException {
+        Connection conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO);
+
+        try (var stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA foreign_keys = ON;");
+        }
+
+        return conn;
+    }
 }

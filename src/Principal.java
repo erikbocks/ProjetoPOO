@@ -1,3 +1,4 @@
+import banco.impls.GerenciadorClientesImpl;
 import banco.impls.GerenciadorFuncionariosImpl;
 import entidades.Cliente;
 import entidades.Consulta;
@@ -11,7 +12,9 @@ import entidades.Usuario;
 import entidades.Venda;
 import entidades.Veterinario;
 import servicos.Leitor;
+import servicos.ServicoCliente;
 import servicos.ServicoFuncionario;
+import servicos.impl.ServicoClienteImpl;
 import servicos.impl.ServicoFuncionarioImpl;
 
 import java.time.LocalDateTime;
@@ -22,6 +25,7 @@ import java.util.Optional;
 public class Principal {
     public Leitor leitor = new Leitor();
     private ServicoFuncionario servicoFuncionario = new ServicoFuncionarioImpl(leitor, new GerenciadorFuncionariosImpl());
+    private ServicoCliente servicoCliente = new ServicoClienteImpl(leitor, new GerenciadorClientesImpl());
     public List<Cliente> clientes = new ArrayList<>();
     public List<Pet> pets = new ArrayList<>();
     public List<Produto> produtos = new ArrayList<>();
@@ -57,6 +61,7 @@ public class Principal {
                     servicoFuncionario.mostrarMenu();
                     break;
                 case 2:
+                    servicoCliente.mostrarMenu();
                     break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
