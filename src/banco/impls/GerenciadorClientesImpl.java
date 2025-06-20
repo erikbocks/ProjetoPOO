@@ -15,7 +15,22 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
 
     @Override
     public Cliente buscarPorCpf(String cpf) {
-        return null;
+        Cliente cliente = null;
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscarCliente = "SELECT * FROM clientes c INNER JOIN enderecos_clientes ec ON c.cpf = ec.cpf_cliente WHERE c.cpf = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sqlBuscarCliente);
+            pstmt.setString(1, cpf);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                cliente = mapearResultSetParaCliente(rs);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar cliente por CPF: " + e.getMessage());
+        }
+
+        return cliente;
     }
 
     @Override
@@ -36,12 +51,50 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
 
     @Override
     public void atualizarEndereco(String cpf, Endereco endereco) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlEndereco = "UPDATE enderecos_clientes SET estado = ?, cidade = ?, rua = ?, numero = ?, complemento = ? WHERE cpf_cliente = ?";
+
+            try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco)) {
+                pstmtEndereco.setString(1, endereco.getEstado().toString());
+                pstmtEndereco.setString(2, endereco.getCidade());
+                pstmtEndereco.setString(3, endereco.getRua());
+                pstmtEndereco.setInt(4, endereco.getNumero());
+                pstmtEndereco.setString(5, endereco.getComplemento());
+                pstmtEndereco.setString(6, cpf);
+                pstmtEndereco.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                System.err.println("Erro ao atualizar endereço de cliente: " + e.getMessage());
+                conn.rollback();
+                return;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
+        }
     }
 
     @Override
     public void desativar(String cpf) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlDesativarCliente = "UPDATE clientes SET ativo=? WHERE cpf=?";
+            try (var pstmt = conn.prepareStatement(sqlDesativarCliente)) {
+                pstmt.setBoolean(1, false);
+                pstmt.setString(2, cpf);
+                pstmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                System.err.println("Erro ao desativar cliente. Revertendo...");
+                conn.rollback();
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao conectar com o banco de dados: " + e.getMessage());
+        }
     }
 
     @Override
@@ -121,11 +174,48 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
 
     @Override
     public void atualizar(Cliente entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlAtualizarCliente = "UPDATE clientes SET nome = ?, email = ?, telefone = ?, data_nascimento = ?, ativo = ? WHERE cpf = ?";
+            try (PreparedStatement pstmtCliente = conn.prepareStatement(sqlAtualizarCliente)) {
+                pstmtCliente.setString(1, entidade.getNome());
+                pstmtCliente.setString(2, entidade.getEmail());
+                pstmtCliente.setString(3, entidade.getTelefone());
+                pstmtCliente.setString(4, entidade.getDataDeNascimento().toString());
+                pstmtCliente.setBoolean(5, entidade.getAtivo());
+                pstmtCliente.setString(6, entidade.getCpf());
+                pstmtCliente.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                System.err.println("Erro ao atualizar cliente: " + e.getMessage());
+                conn.rollback();
+                return;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao conectar com o banco de dados: " + e.getMessage());
+        }
     }
 
     @Override
     public void excluir(Cliente entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
+
+            String sqlExcluirCliente = "DELETE FROM clientes WHERE cpf = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlExcluirCliente)) {
+                pstmt.setString(1, entidade.getCpf());
+                pstmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                System.err.println("Erro ao excluir cliente: " + e.getMessage());
+                conn.rollback();
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao conectar com o banco de dados: " + e.getMessage());
+        }
     }
 
     private Cliente mapearResultSetParaCliente(ResultSet rs) throws SQLException {

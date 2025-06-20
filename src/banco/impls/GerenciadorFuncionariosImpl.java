@@ -28,7 +28,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             return funcionario;
         } catch (SQLException e) {
             System.err.println("Erro ao buscar funcionário por CPF: " + e.getMessage());
-            e.printStackTrace();
             return funcionario;
         }
     }
@@ -45,7 +44,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             return rs.next();
         } catch (SQLException e) {
             System.err.println("Erro ao verificar se funcionário está cadastrado: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -74,7 +72,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             conn.commit();
         } catch (SQLException e) {
             System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -97,7 +94,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             conn.commit();
         } catch (SQLException e) {
             System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -115,7 +111,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             }
         } catch (SQLException e) {
             System.err.println("Erro ao conectar ao banco de dados: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return funcionarios;
@@ -174,7 +169,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             }
         } catch (SQLException e) {
             System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
-            e.printStackTrace();
             return null;
         }
 
@@ -205,7 +199,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             conn.commit();
         } catch (SQLException e) {
             System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -227,7 +220,6 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             conn.commit();
         } catch (SQLException e) {
             System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

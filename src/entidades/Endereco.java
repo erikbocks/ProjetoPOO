@@ -26,7 +26,7 @@ public class Endereco {
         if (this.numero != endereco.getNumero()) {
             this.numero = endereco.getNumero();
         }
-        if (!endereco.getComplemento().isBlank() && !this.complemento.equals(endereco.getComplemento())) {
+        if (endereco.getComplemento() != null && !endereco.getComplemento().isBlank() && !this.complemento.equals(endereco.getComplemento())) {
             this.complemento = endereco.getComplemento();
         }
         if (!endereco.getCidade().isBlank() && !this.cidade.equals(endereco.getComplemento())) {
