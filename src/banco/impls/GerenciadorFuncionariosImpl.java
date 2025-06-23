@@ -21,7 +21,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             pstmt.setString(1, cpf);
             ResultSet rs = pstmt.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 funcionario = mapearResultSetParaFuncionario(rs);
             }
 

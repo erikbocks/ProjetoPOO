@@ -22,6 +22,9 @@ public class Produto {
         BRINQUEDO
     }
 
+    public Produto() {
+    }
+
     public Produto(String nome, String descricao, Integer quantidade, Double valor, TipoProduto tipo) {
         this.codigo = UUID.randomUUID().toString().split("-")[0];
         this.nome = nome;

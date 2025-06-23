@@ -40,6 +40,9 @@ public class ServicoProdutoImpl implements ServicoProduto {
             case 1:
                 cadastrarProduto();
                 break;
+            case 3:
+                listarProdutos();
+                break;
             default:
                 System.err.println("Operação inválida.");
         }
@@ -70,18 +73,24 @@ public class ServicoProdutoImpl implements ServicoProduto {
     }
 
     @Override
-    public List<Produto> listarProdutos() {
-        return List.of();
+    public void listarProdutos() {
+        List<Produto> produtos = gerenciadorProdutos.listarTodos();
+
+        if(produtos == null)  {
+            return;
+        }
+
+        System.out.println("========= LISTAGEM DE PRODUTOS ========================================");
+        produtos.forEach(System.out::println);
+        System.out.println("=======================================================================");
     }
 
     @Override
-    public List<Produto> listarProdutosContendoPalavra() {
-        return List.of();
+    public void listarProdutosContendoPalavra() {
     }
 
     @Override
-    public List<Produto> listarProdutosPorTipo() {
-        return List.of();
+    public void listarProdutosPorTipo() {
     }
 
     @Override

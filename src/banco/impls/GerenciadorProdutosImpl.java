@@ -4,13 +4,49 @@ import banco.GerenciadorProdutos;
 import entidades.Produto;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GerenciadorProdutosImpl implements GerenciadorProdutos {
     @Override
     public List<Produto> listarTodos() {
-        return List.of();
+        List<Produto> produtos = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            try (var pstmt = conn.prepareStatement("SELECT * FROM produtos;")) {
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    Produto produto = mapearResultSet(rs);
+                    produtos.add(produto);
+                }
+
+                return produtos;
+            } catch (SQLException ex) {
+                System.err.println("Não foi possível buscar os produtos cadastrados: " + ex.getMessage());
+                return null;
+            }
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível conectar ao banco de dados: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    private Produto mapearResultSet(ResultSet rs) throws SQLException{
+        Produto produto = new Produto();
+
+        produto.setCodigo(rs.getString(1));
+        produto.setNome(rs.getString(2));
+        produto.setDescricao(rs.getString(3));
+        produto.setQuantidade(rs.getInt(4));
+        produto.setValor(rs.getDouble(5));
+        produto.setUltimaAtualizacao(LocalDateTime.parse(rs.getString(6)));
+        produto.setTipo(Produto.TipoProduto.valueOf(rs.getString(7)));
+
+        return produto;
     }
 
     @Override

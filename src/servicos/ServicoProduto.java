@@ -9,11 +9,11 @@ public interface ServicoProduto {
 
     void cadastrarProduto();
 
-    List<Produto> listarProdutos();
+    void listarProdutos();
 
-    List<Produto> listarProdutosContendoPalavra();
+    void listarProdutosContendoPalavra();
 
-    List<Produto> listarProdutosPorTipo();
+    void listarProdutosPorTipo();
 
     void atualizarProduto();
 
