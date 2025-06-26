@@ -14,6 +14,9 @@ public class Pet {
     private List<String> observacoes;
     private Cliente tutor;
 
+    public Pet() {
+    }
+
     public Pet(String nome, Especie especie, String raca, LocalDateTime dataDeNascimento, Sexo sexo, Cliente tutor) {
         this.nome = nome;
         this.especie = especie;
@@ -130,6 +133,6 @@ public class Pet {
 
     @Override
     public String toString() {
-        return String.format("Pet[nome=%s, especie=%s, raca=%s, dataDeNascimento=%s, sexo=%s, observacoes=%s, tutor=%s]", nome, especie, raca, dataDeNascimento, sexo, observacoes, tutor.getNome());
+        return String.format("Pet[nome=%s, especie=%s, raca=%s, dataDeNascimento=%s, sexo=%s, observacoes=%s, tutor=%s]", nome, especie, raca, dataDeNascimento, sexo, observacoes.toString(), tutor.getNome());
     }
 }

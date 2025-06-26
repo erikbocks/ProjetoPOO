@@ -1,9 +1,13 @@
 package banco.impls;
 
 import banco.GerenciadorPets;
+import entidades.Cliente;
 import entidades.Pet;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -26,7 +30,44 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
     @Override
     public List<Pet> listarTodos() {
-        return List.of();
+        List<Pet> pets = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sql = "SELECT * FROM pets p INNER JOIN clientes c on c.cpf = p.tutor;";
+            try (var preparedStatement = conn.prepareStatement(sql)) {
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    Pet pet = new Pet();
+                    pet.setId(resultSet.getInt(1));
+                    pet.setNome(resultSet.getString(2));
+                    pet.setEspecie(Pet.Especie.valueOf(resultSet.getString(3)));
+                    pet.setDataDeNascimento(LocalDateTime.parse(resultSet.getString(4)));
+                    pet.setRaca(resultSet.getString(5));
+                    pet.setSexo(Pet.Sexo.valueOf(resultSet.getString(6)));
+
+                    Cliente cliente = new Cliente();
+                    cliente.setCpf(resultSet.getString(8));
+                    cliente.setNome(resultSet.getString(9));
+                    cliente.setEmail(resultSet.getString(10));
+                    cliente.setTelefone(resultSet.getString(11));
+                    cliente.setDataDeCadastro(LocalDateTime.parse(resultSet.getString(12)));
+                    cliente.setDataDeNascimento(LocalDateTime.parse(resultSet.getString(13)));
+                    cliente.setAtivo(resultSet.getBoolean(14));
+                    pet.setTutor(cliente);
+
+                    pets.add(pet);
+
+                }
+            } catch (SQLException ex) {
+                System.out.println("Erro ao listar pets: " + ex.getMessage());
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("Não foi possível conectar ao banco de dados: " + e.getMessage());
+            return null;
+        }
+
+        return pets;
     }
 
     @Override

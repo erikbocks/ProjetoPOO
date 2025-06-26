@@ -48,6 +48,9 @@ public class ServicoPetImpl implements ServicoPet {
             case 1:
                 cadastrarPet();
                 break;
+            case 4:
+                listarPets();
+                break;
             default:
                 System.err.println("Opção inválida. Tente novamente.");
                 break;
@@ -115,18 +118,25 @@ public class ServicoPetImpl implements ServicoPet {
     }
 
     @Override
-    public List<String> listarObservacoesPet() {
-        return List.of();
+    public void listarObservacoesPet() {
     }
 
     @Override
-    public List<Pet> listarPets() {
-        return List.of();
+    public void listarPets() {
+        List<Pet> pets = gerenciadorPets.listarTodos();
+
+        if (pets.isEmpty()) {
+            System.out.println("Nenhum pet cadastrado.");
+        } else {
+            System.out.println("Lista de pets cadastrados:");
+            System.out.println("=========== LISTA DE FUNCIONÁRIOS =============");
+            pets.forEach(System.out::println);
+            System.out.println("===============================================");
+        }
     }
 
     @Override
-    public List<Pet> listarPetsDoTutor(String cpfTutor) {
-        return List.of();
+    public void listarPetsDoTutor(String cpfTutor) {
     }
 
     @Override

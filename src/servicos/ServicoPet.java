@@ -23,17 +23,17 @@ public interface ServicoPet {
     /**
      * Lista as observações de um pet.
      */
-    List<String > listarObservacoesPet();
+    void listarObservacoesPet();
 
     /**
      * Lista todos os pets cadastrados.
      */
-    List<Pet> listarPets();
+    void listarPets();
 
     /**
      * Lista todos os pets de um tutor específico.
      */
-    List<Pet> listarPetsDoTutor(String cpfTutor);
+    void listarPetsDoTutor(String cpfTutor);
 
     /**
      * Atualiza os dados de um pet.
