@@ -2,6 +2,7 @@ package entidades;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.UUID;
 
 public class Produto {
     private String codigo;
@@ -21,8 +22,11 @@ public class Produto {
         BRINQUEDO
     }
 
+    public Produto() {
+    }
+
     public Produto(String nome, String descricao, Integer quantidade, Double valor, TipoProduto tipo) {
-        this.codigo = String.valueOf((int) (Math.random() * 1001));
+        this.codigo = UUID.randomUUID().toString().split("-")[0];
         this.nome = nome;
         this.descricao = descricao;
         this.quantidade = quantidade;
@@ -40,6 +44,18 @@ public class Produto {
         return null;
     }
 
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public LocalDateTime getUltimaAtualizacao() {
+        return ultimaAtualizacao;
+    }
+
+    public TipoProduto getTipo() {
+        return tipo;
+    }
+
     public String getCodigo() {
         return codigo;
     }
@@ -54,6 +70,34 @@ public class Produto {
 
     public Double getValor() {
         return valor;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public void setQuantidade(Integer quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
+
+    public void setUltimaAtualizacao(LocalDateTime ultimaAtualizacao) {
+        this.ultimaAtualizacao = ultimaAtualizacao;
+    }
+
+    public void setTipo(TipoProduto tipo) {
+        this.tipo = tipo;
     }
 
     public void atualizarEstoque(Integer quantia) {

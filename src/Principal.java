@@ -1,5 +1,6 @@
 import banco.impls.GerenciadorClientesImpl;
 import banco.impls.GerenciadorFuncionariosImpl;
+import banco.impls.GerenciadorProdutosImpl;
 import banco.impls.GerenciadorPetsImpl;
 import entidades.Cliente;
 import entidades.Consulta;
@@ -15,9 +16,11 @@ import entidades.Veterinario;
 import servicos.Leitor;
 import servicos.ServicoCliente;
 import servicos.ServicoFuncionario;
+import servicos.ServicoProduto;
 import servicos.ServicoPet;
 import servicos.impl.ServicoClienteImpl;
 import servicos.impl.ServicoFuncionarioImpl;
+import servicos.impl.ServicoProdutoImpl;
 import servicos.impl.ServicoPetImpl;
 
 import java.time.LocalDateTime;
@@ -29,6 +32,7 @@ public class Principal {
     public Leitor leitor = new Leitor();
     private ServicoFuncionario servicoFuncionario = new ServicoFuncionarioImpl(leitor, new GerenciadorFuncionariosImpl());
     private ServicoCliente servicoCliente = new ServicoClienteImpl(leitor, new GerenciadorClientesImpl());
+    private ServicoProduto servicoProduto = new ServicoProdutoImpl(leitor, new GerenciadorProdutosImpl());
     private ServicoPet servicoPet = new ServicoPetImpl(leitor, new GerenciadorPetsImpl(), new GerenciadorClientesImpl());
     public List<Produto> produtos = new ArrayList<>();
     public List<Venda> vendas = new ArrayList<>();
@@ -68,6 +72,9 @@ public class Principal {
                 case 3:
                     servicoPet.mostrarMenu();
                     break;
+                case 4:
+                    servicoProduto.mostrarMenu();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -90,41 +97,6 @@ public class Principal {
                 
                 =================================================================================
                 """);
-    }
-
-    private void cadastrarProduto() {
-        System.out.println("Boas vindas ao cadastro de produto!");
-
-        Funcionario funcionario = autenticarFuncionario();
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return;
-        }
-
-        String nome = leitor.lerString("Digite o nome do produto");
-        int quantidade = leitor.lerInt("Digite a quantidade do produto (Se for do tipo SERVIÇO, inserir 1)");
-        double valor = leitor.lerDouble("Digite o valor do produto (Ex: 10.99)");
-        Produto.TipoProduto tipo = leitor.lerTipoDeProduto("""
-                ==========================================
-                Selecione o tipo do produto:
-                
-                SERVIÇO
-                ALIMENTO
-                MEDICAMENTO
-                HIGIENE
-                ACESSÓRIO
-                BRINQUEDO
-                
-                ==========================================
-                
-                """);
-        String descricao = leitor.lerString("Digite a descrição do produto");
-
-        Produto novoProduto = new Produto(nome, descricao, quantidade, valor, tipo);
-        produtos.add(novoProduto);
-
-        System.out.println("Produto " + novoProduto.getNome() + " cadastrado com sucesso!");
     }
 
     private void cadastrarVenda() {
@@ -314,28 +286,6 @@ public class Principal {
 
         consultas.set(indiceConsulta, consulta);
         prontuarios.add(prontuario);
-    }
-
-    private void listarPetsDoCliente() {
-        String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
-
-        Optional<Cliente> possivelCliente = null;
-
-        if (possivelCliente.isEmpty()) {
-            System.err.println("Cliente não encontrado. Tente novamente.");
-            return;
-        }
-
-        Cliente cliente = possivelCliente.get();
-
-        System.out.println("=========== LISTA DE PETS DO " + cliente.getNome() + " =============");
-        System.out.println("===================================================");
-    }
-
-    private void listarProdutos() {
-        System.out.println("=========== LISTA DE PRODUTOS =============");
-        produtos.forEach(System.out::println);
-        System.out.println("============================================");
     }
 
     private void listarVendas() {
