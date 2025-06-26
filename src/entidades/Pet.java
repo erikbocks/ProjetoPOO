@@ -15,6 +15,7 @@ public class Pet {
     private Cliente tutor;
 
     public Pet() {
+        this.observacoes = new ArrayList<>();
     }
 
     public Pet(String nome, Especie especie, String raca, LocalDateTime dataDeNascimento, Sexo sexo, Cliente tutor) {
@@ -133,6 +134,6 @@ public class Pet {
 
     @Override
     public String toString() {
-        return String.format("Pet[nome=%s, especie=%s, raca=%s, dataDeNascimento=%s, sexo=%s, observacoes=%s, tutor=%s]", nome, especie, raca, dataDeNascimento, sexo, observacoes.toString(), tutor.getNome());
+        return String.format("Pet[nome=%s, especie=%s, raca=%s, dataDeNascimento=%s, sexo=%s, observacoes=%s, tutor=%s]", nome, especie, raca, dataDeNascimento, sexo, observacoes != null ? observacoes.toString() : List.of(), tutor.getNome());
     }
 }

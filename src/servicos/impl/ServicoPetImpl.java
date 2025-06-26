@@ -8,6 +8,7 @@ import servicos.Leitor;
 import servicos.ServicoPet;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 public class ServicoPetImpl implements ServicoPet {
@@ -73,20 +74,15 @@ public class ServicoPetImpl implements ServicoPet {
         }
 
         String nome = leitor.lerString("Digite o nome do pet");
-        Pet.Especie especie = leitor.lerEspecieDePet("""
+        Pet.Especie especie = leitor.lerEspecieDePet(String.format("""
                 ==========================================
                 Selecione a espécie do pet:
                 
-                CACHORRO
-                GATO
-                PEIXE
-                PASSARO
-                REPTIL
-                ROEDOR
-                OUTRO
+                %s
+                
                 ==========================================
                 
-                """);
+                """, Arrays.toString(Pet.Especie.values())));
 
         String raca = leitor.lerString("Digite a raça do pet (Opcional)");
         LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do pet");

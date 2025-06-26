@@ -33,7 +33,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
         List<Pet> pets = new ArrayList<>();
 
         try (var conn = getConnectionWithFKEnabled()) {
-            String sql = "SELECT * FROM pets p INNER JOIN clientes c on c.cpf = p.tutor;";
+            String sql = "SELECT p.*, c.cpf, c.nome FROM pets p INNER JOIN clientes c on c.cpf = p.tutor;";
             try (var preparedStatement = conn.prepareStatement(sql)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
@@ -46,21 +46,29 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                     pet.setSexo(Pet.Sexo.valueOf(resultSet.getString(6)));
 
                     Cliente cliente = new Cliente();
-                    cliente.setCpf(resultSet.getString(8));
-                    cliente.setNome(resultSet.getString(9));
-                    cliente.setEmail(resultSet.getString(10));
-                    cliente.setTelefone(resultSet.getString(11));
-                    cliente.setDataDeCadastro(LocalDateTime.parse(resultSet.getString(12)));
-                    cliente.setDataDeNascimento(LocalDateTime.parse(resultSet.getString(13)));
-                    cliente.setAtivo(resultSet.getBoolean(14));
+                    cliente.setCpf(resultSet.getString(7));
+                    cliente.setNome(resultSet.getString(8));
+
                     pet.setTutor(cliente);
-
                     pets.add(pet);
-
                 }
             } catch (SQLException ex) {
                 System.out.println("Erro ao listar pets: " + ex.getMessage());
                 return null;
+            }
+
+            String sqlObs = "SELECT * FROM observacoes_pets WHERE pet_id = ?";
+            try (var preparedStatementObs = conn.prepareStatement(sqlObs)) {
+                for (Pet pet : pets) {
+                    preparedStatementObs.setInt(1, pet.getId());
+                    ResultSet rs = preparedStatementObs.executeQuery();
+
+                    while (rs.next()) {
+                        pet.addObservacao(rs.getString(2));
+                    }
+                }
+            } catch (SQLException ex) {
+                System.out.println("Erro ao listar observações dos pets: " + ex.getMessage());
             }
         } catch (SQLException e) {
             System.out.println("Não foi possível conectar ao banco de dados: " + e.getMessage());
