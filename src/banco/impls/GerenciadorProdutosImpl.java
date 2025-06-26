@@ -88,4 +88,29 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
     public void excluir(Produto entidade) {
 
     }
+
+    @Override
+    public Produto buscarPorCodigo(String codigo) {
+        Produto produto = null;
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscaProduto = "SELECT * FROM produtos WHERE codigo = ?;";
+            try (var pstmt = conn.prepareStatement(sqlBuscaProduto)) {
+                pstmt.setString(1, codigo);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    produto = mapearResultSet(rs);
+                }
+            } catch (SQLException ex) {
+                System.err.println("Não foi possível buscar o produto: " + ex.getMessage());
+                return null;
+            }
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível conectar ao banco de dados: " + ex.getMessage());
+            return null;
+        }
+
+        return produto;
+    }
 }

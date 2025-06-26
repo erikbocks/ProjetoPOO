@@ -40,6 +40,9 @@ public class ServicoProdutoImpl implements ServicoProduto {
             case 1:
                 cadastrarProduto();
                 break;
+            case 2:
+                buscarProdutoPorCodigo();
+                break;
             case 3:
                 listarProdutos();
                 break;
@@ -70,6 +73,23 @@ public class ServicoProdutoImpl implements ServicoProduto {
         gerenciadorProdutos.inserir(novoProduto);
 
         System.out.println("Produto " + novoProduto.getNome() + " cadastrado com sucesso!");
+    }
+
+    @Override
+    public void buscarProdutoPorCodigo() {
+        System.out.println("Boas vindas à busca de produto por código!");
+
+        String codigo = leitor.lerString("Digite o código do produto que deseja buscar");
+
+        Produto produto = gerenciadorProdutos.buscarPorCodigo(codigo);
+
+        if (produto == null) {
+            System.out.println("Nenhum produto encontrado com o código digitado");
+            return;
+        }
+
+        System.out.println("Produto encontrado. Detalhes:");
+        System.out.println(produto);
     }
 
     @Override

@@ -5,6 +5,8 @@ public interface ServicoProduto {
 
     void cadastrarProduto();
 
+    void buscarProdutoPorCodigo();
+
     void listarProdutos();
 
     void listarProdutosContendoPalavra();
