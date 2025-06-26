@@ -140,4 +140,30 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
             return null;
         }
     }
+
+    @Override
+    public List<Produto> listarPorTipo(Produto.TipoProduto tipo) {
+        List<Produto> produtos = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscaProdutosPorTipo = "SELECT * FROM produtos WHERE tipo = ?;";
+            try (var pstmt = conn.prepareStatement(sqlBuscaProdutosPorTipo)) {
+                pstmt.setString(1, tipo.name());
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    Produto produto = mapearResultSet(rs);
+                    produtos.add(produto);
+                }
+
+                return produtos;
+            } catch (SQLException ex) {
+                System.err.println("Não foi possível buscar os produtos do tipo " + tipo + ": " + ex.getMessage());
+                return null;
+            }
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível conectar ao banco de dados: " + ex.getMessage());
+            return null;
+        }
+    }
 }

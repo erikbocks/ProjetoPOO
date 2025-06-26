@@ -49,6 +49,9 @@ public class ServicoProdutoImpl implements ServicoProduto {
             case 4:
                 listarProdutosContendoPalavra();
                 break;
+            case 5:
+                listarProdutosPorTipo();
+                break;
             default:
                 System.err.println("Operação inválida.");
         }
@@ -127,6 +130,27 @@ public class ServicoProdutoImpl implements ServicoProduto {
 
     @Override
     public void listarProdutosPorTipo() {
+        System.out.println("Boas vindas à listagem de produtos por tipo!");
+
+        Produto.TipoProduto tipo = leitor.lerTipoDeProduto(String.format("""
+                ==========================================
+                Selecione o tipo do produto:
+                
+                %s
+                
+                ==========================================
+                """, Arrays.toString(Produto.TipoProduto.values())));
+
+        List<Produto> produtos = gerenciadorProdutos.listarPorTipo(tipo);
+
+        if (produtos == null || produtos.isEmpty()) {
+            System.out.println("Nenhum produto encontrado com o tipo digitado");
+            return;
+        }
+
+        System.out.println("====================== LISTA DE PRODUTOS ==========================");
+        produtos.forEach(System.out::println);
+        System.out.println("===================================================================");
     }
 
     @Override
