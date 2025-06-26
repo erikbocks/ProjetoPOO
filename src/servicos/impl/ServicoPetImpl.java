@@ -10,6 +10,7 @@ import servicos.ServicoPet;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class ServicoPetImpl implements ServicoPet {
     private Leitor leitor;
@@ -49,15 +50,19 @@ public class ServicoPetImpl implements ServicoPet {
             case 1:
                 cadastrarPet();
                 break;
+            case 2:
+                cadastrarObservacaoPet();
+                break;
             case 4:
                 listarPets();
+                break;
+            case 5:
+                listarPetsDoTutor();
                 break;
             default:
                 System.err.println("Opção inválida. Tente novamente.");
                 break;
         }
-
-
     }
 
     @Override
@@ -110,7 +115,61 @@ public class ServicoPetImpl implements ServicoPet {
 
     @Override
     public void cadastrarObservacaoPet() {
+        System.out.println("Boas vindas ao cadastro de observação de pet!");
 
+        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
+
+        Cliente cliente = gerenciadorClientes.buscarPorCpf(cpfDoTutor);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        List<Pet> petsDoCliente = gerenciadorPets.listarPorTutor(cpfDoTutor);
+
+        if (petsDoCliente.isEmpty()) {
+            System.out.println("Nenhum pet encontrado para o tutor com CPF: " + cpfDoTutor);
+            return;
+        }
+
+        System.out.println("Selecione o pet para o qual deseja adicionar uma observação:\n");
+        for (int i = 0; i < petsDoCliente.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, petsDoCliente.get(i).getNome());
+        }
+        int indicePet = leitor.lerInt("Digite o número do pet escolhido") - 1;
+
+        if(indicePet < 0 || indicePet >= petsDoCliente.size()) {
+            System.out.println("Opção inválida. Tente novamente.");
+            return;
+        }
+
+        Optional<Pet> optPet = Optional.ofNullable(petsDoCliente.get(indicePet));
+
+        if (optPet.isEmpty()) {
+            System.out.println("Pet não encontrado. Tente novamente.");
+            return;
+        }
+
+        Pet pet = optPet.get();
+
+        boolean desejaAdicionarObservacao = true;
+        List<String> observacoes = pet.getObservacoes();
+
+        while (desejaAdicionarObservacao) {
+            String observacao = leitor.lerString("Digite a observação");
+
+            if (observacao.isBlank()) {
+                System.out.println("Observação não pode ser vazia. Tente novamente.");
+                continue;
+            }
+
+            observacoes.add(observacao);
+            desejaAdicionarObservacao = leitor.lerBoolean("Deseja adicionar mais observações?");
+        }
+
+        gerenciadorPets.adicionarObservacoes(pet, observacoes);
+        System.out.println("Observações adicionadas com sucesso ao pet " + pet.getNome() + "!");
     }
 
     @Override
@@ -132,7 +191,26 @@ public class ServicoPetImpl implements ServicoPet {
     }
 
     @Override
-    public void listarPetsDoTutor(String cpfTutor) {
+    public void listarPetsDoTutor() {
+        System.out.println("Boas vindas à listagem de pets do tutor!");
+
+        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
+
+        Cliente cliente = gerenciadorClientes.buscarPorCpf(cpfDoTutor);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        List<Pet> petsDoTutor = gerenciadorPets.listarPorTutor(cpfDoTutor);
+
+        if (petsDoTutor.isEmpty()) {
+            System.out.println("Nenhum pet encontrado para o tutor com CPF: " + cpfDoTutor);
+        } else {
+            System.out.println("Lista de pets do tutor " + cliente.getNome() + ":");
+            petsDoTutor.forEach(System.out::println);
+        }
     }
 
     @Override

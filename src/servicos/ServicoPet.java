@@ -33,7 +33,7 @@ public interface ServicoPet {
     /**
      * Lista todos os pets de um tutor específico.
      */
-    void listarPetsDoTutor(String cpfTutor);
+    void listarPetsDoTutor();
 
     /**
      * Atualiza os dados de um pet.

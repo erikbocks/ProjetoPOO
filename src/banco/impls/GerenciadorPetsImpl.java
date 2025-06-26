@@ -15,7 +15,76 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 public class GerenciadorPetsImpl implements GerenciadorPets {
     @Override
     public List<Pet> listarPorTutor(String cpfTutor) {
-        return List.of();
+        List<Pet> pets = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sql = "SELECT p.* FROM pets p WHERE p.tutor = ?";
+            try (var preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setString(1, cpfTutor);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    Pet pet = new Pet();
+                    pet.setId(resultSet.getInt(1));
+                    pet.setNome(resultSet.getString(2));
+                    pet.setEspecie(Pet.Especie.valueOf(resultSet.getString(3)));
+                    pet.setDataDeNascimento(LocalDateTime.parse(resultSet.getString(4)));
+                    pet.setRaca(resultSet.getString(5));
+                    pet.setSexo(Pet.Sexo.valueOf(resultSet.getString(6)));
+
+                    Cliente cliente = new Cliente();
+                    cliente.setCpf(cpfTutor);
+
+                    pet.setTutor(cliente);
+                    pets.add(pet);
+                }
+            } catch (SQLException ex) {
+                System.out.println("Erro ao listar pets por tutor: " + ex.getMessage());
+                return null;
+            }
+
+            String sqlObs = "SELECT * FROM observacoes_pets WHERE pet_id = ?";
+            try (var preparedStatementObs = conn.prepareStatement(sqlObs)) {
+                for (Pet pet : pets) {
+                    preparedStatementObs.setInt(1, pet.getId());
+                    ResultSet rs = preparedStatementObs.executeQuery();
+
+                    while (rs.next()) {
+                        pet.addObservacao(rs.getString(2));
+                    }
+                }
+            } catch (SQLException ex) {
+                System.out.println("Erro ao listar observações dos pets: " + ex.getMessage());
+            }
+        } catch (SQLException e) {
+            System.out.println("Não foi possível conectar ao banco de dados: " + e.getMessage());
+            return null;
+        }
+
+        return pets;
+    }
+
+
+    @Override
+    public void adicionarObservacoes(Pet pet, List<String> observacoes) {
+        String sql = "INSERT INTO observacoes_pets (pet_id, observacao) VALUES (?, ?)";
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
+
+            try (var preparedStatement = conn.prepareStatement(sql)) {
+                for (String obs : observacoes) {
+                    preparedStatement.setInt(1, pet.getId());
+                    preparedStatement.setString(2, obs);
+                    preparedStatement.addBatch();
+                }
+                preparedStatement.executeBatch();
+                conn.commit();
+            } catch (SQLException ex) {
+                System.out.println("Erro ao inserir observações do pet: " + ex.getMessage());
+                conn.rollback();
+            }
+        } catch (SQLException e) {
+            System.out.println("Não foi possível inserir as observações do pet: " + e.getMessage());
+        }
     }
 
     @Override
@@ -33,7 +102,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
         List<Pet> pets = new ArrayList<>();
 
         try (var conn = getConnectionWithFKEnabled()) {
-            String sql = "SELECT p.*, c.cpf, c.nome FROM pets p INNER JOIN clientes c on c.cpf = p.tutor;";
+            String sql = "SELECT p.*, c.nome FROM pets p INNER JOIN clientes c on c.cpf = p.tutor;";
             try (var preparedStatement = conn.prepareStatement(sql)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
