@@ -62,6 +62,9 @@ public class ServicoPetImpl implements ServicoPet {
             case 5:
                 listarPetsDoTutor();
                 break;
+            case 6:
+                atualizarPet();
+                break;
             default:
                 System.err.println("Opção inválida. Tente novamente.");
                 break;
@@ -142,7 +145,7 @@ public class ServicoPetImpl implements ServicoPet {
         }
         int indicePet = leitor.lerInt("Digite o número do pet escolhido") - 1;
 
-        if(indicePet < 0 || indicePet >= petsDoCliente.size()) {
+        if (indicePet < 0 || indicePet >= petsDoCliente.size()) {
             System.out.println("Opção inválida. Tente novamente.");
             return;
         }
@@ -201,7 +204,7 @@ public class ServicoPetImpl implements ServicoPet {
         }
         int indicePet = leitor.lerInt("Digite o número do pet escolhido") - 1;
 
-        if(indicePet < 0 || indicePet >= petsDoTutor.size()) {
+        if (indicePet < 0 || indicePet >= petsDoTutor.size()) {
             System.out.println("Opção inválida. Tente novamente.");
             return;
         }
@@ -256,7 +259,92 @@ public class ServicoPetImpl implements ServicoPet {
 
     @Override
     public void atualizarPet() {
+        System.out.println("Boas vindas à atualização de pet!");
 
+        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
+
+        Cliente cliente = gerenciadorClientes.buscarPorCpf(cpfDoTutor);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        List<Pet> petsDoTutor = gerenciadorPets.listarPorTutor(cpfDoTutor);
+
+        if (petsDoTutor.isEmpty()) {
+            System.out.println("Nenhum pet encontrado para o tutor com CPF: " + cpfDoTutor);
+            return;
+        }
+
+        System.out.println("Selecione o pet que deseja atualizar:\n");
+        for (int i = 0; i < petsDoTutor.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, petsDoTutor.get(i).getNome());
+        }
+        int indicePet = leitor.lerInt("Digite o número do pet escolhido") - 1;
+
+        if (indicePet < 0 || indicePet >= petsDoTutor.size()) {
+            System.out.println("Opção inválida. Tente novamente.");
+            return;
+        }
+
+        Pet pet = petsDoTutor.get(indicePet);
+
+        String novoNome = leitor.lerString("Digite o novo nome do pet (ou deixe em branco para manter o atual)");
+        if (!novoNome.isBlank()) {
+            pet.setNome(novoNome);
+        }
+
+        String novaEspecieInput = leitor.lerString(String.format("""
+                ==========================================
+                Selecione a espécie do pet:
+                
+                %s
+                
+                ==========================================
+                
+                """, Arrays.toString(Pet.Especie.values())));
+
+        if (!novaEspecieInput.isBlank()) {
+            Pet.Especie novaEspecie = Pet.procurarEspeciePorNome(novaEspecieInput);
+
+            if (novaEspecie != null && novaEspecie != pet.getEspecie()) {
+                pet.setEspecie(novaEspecie);
+            } else {
+                System.out.println("Espécie inválida ou não alterada. Mantendo a espécie atual.");
+            }
+        }
+
+        String novaRaca = leitor.lerString("Digite a nova raça do pet (ou deixe em branco para manter a atual)");
+        if (!novaRaca.isBlank()) {
+            pet.setRaca(novaRaca);
+        }
+
+        boolean desejaAtualizarNascimento = leitor.lerBoolean("Deseja atualizar a data de nascimento do pet");
+
+        if (desejaAtualizarNascimento) {
+            LocalDateTime novaDataDeNascimento = leitor.lerData("Digite a data de nascimento do pet");
+
+            if (!novaDataDeNascimento.isEqual(pet.getDataDeNascimento())) {
+                pet.setDataDeNascimento(novaDataDeNascimento);
+            } else {
+                System.out.println("Data de nascimento inalterada.");
+            }
+        }
+
+        boolean desejaAtualizarSexo = leitor.lerBoolean("Deseja atualizar o sexo do pet");
+
+        if (desejaAtualizarSexo) {
+            Pet.Sexo novoSexo = leitor.lerSexoDePet("Digite o novo sexo do pet (ou deixe em branco para manter o atual)");
+            if (novoSexo != pet.getSexo()) {
+                pet.setSexo(novoSexo);
+            } else {
+                System.out.println("Sexo do pet inalterado.");
+            }
+        }
+
+        gerenciadorPets.atualizar(pet);
+        System.out.println("Pet " + pet.getNome() + " atualizado com sucesso!");
     }
 
     @Override

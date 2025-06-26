@@ -198,6 +198,29 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
     @Override
     public void atualizar(Pet entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
+
+            String sql = "UPDATE pets SET nome = ?, especie = ?, raca = ?, data_nascimento = ?, sexo = ? WHERE id = ?";
+            try (var preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setString(1, entidade.getNome());
+                preparedStatement.setString(2, entidade.getEspecie().name());
+                preparedStatement.setString(3, entidade.getRaca());
+                preparedStatement.setString(4, entidade.getDataDeNascimento().toString());
+                preparedStatement.setString(5, entidade.getSexo().name());
+                preparedStatement.setInt(6, entidade.getId());
+
+                preparedStatement.executeUpdate();
+            } catch (SQLException ex) {
+                System.out.println("Erro ao atualizar pet: " + ex.getMessage());
+                conn.rollback();
+                return;
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            System.out.println("Não foi possível atualizar o pet: " + e.getMessage());
+        }
 
     }
 
