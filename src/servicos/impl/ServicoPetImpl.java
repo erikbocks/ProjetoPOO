@@ -53,6 +53,9 @@ public class ServicoPetImpl implements ServicoPet {
             case 2:
                 cadastrarObservacaoPet();
                 break;
+            case 3:
+                listarObservacoesPet();
+                break;
             case 4:
                 listarPets();
                 break;
@@ -174,6 +177,44 @@ public class ServicoPetImpl implements ServicoPet {
 
     @Override
     public void listarObservacoesPet() {
+        System.out.println("Boas vindas à listagem de observações de pet!");
+
+        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
+
+        Cliente cliente = gerenciadorClientes.buscarPorCpf(cpfDoTutor);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        List<Pet> petsDoTutor = gerenciadorPets.listarPorTutor(cpfDoTutor);
+
+        if (petsDoTutor.isEmpty()) {
+            System.out.println("Nenhum pet encontrado para o tutor com CPF: " + cpfDoTutor);
+            return;
+        }
+
+        System.out.println("Selecione o pet para o qual deseja listar as observações:\n");
+        for (int i = 0; i < petsDoTutor.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, petsDoTutor.get(i).getNome());
+        }
+        int indicePet = leitor.lerInt("Digite o número do pet escolhido") - 1;
+
+        if(indicePet < 0 || indicePet >= petsDoTutor.size()) {
+            System.out.println("Opção inválida. Tente novamente.");
+            return;
+        }
+
+        Pet pet = petsDoTutor.get(indicePet);
+        List<String> observacoes = pet.getObservacoes();
+
+        if (observacoes.isEmpty()) {
+            System.out.println("Nenhuma observação encontrada para o pet " + pet.getNome());
+        } else {
+            System.out.println("Observações do pet " + pet.getNome() + ":\n");
+            observacoes.forEach(System.out::println);
+        }
     }
 
     @Override
