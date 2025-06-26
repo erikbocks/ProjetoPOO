@@ -34,8 +34,7 @@ public class ServicoPetImpl implements ServicoPet {
                 4. Listar pets.
                 5. Listar pets do tutor.
                 6. Atualizar pet.
-                7. Atualizar data de nascimento do pet.
-                8. Excluir pet.
+                7. Excluir pet.
                 0. Voltar.
                 
                 =================================================================================
@@ -64,6 +63,9 @@ public class ServicoPetImpl implements ServicoPet {
                 break;
             case 6:
                 atualizarPet();
+                break;
+            case 7:
+                excluirPet();
                 break;
             default:
                 System.err.println("Opção inválida. Tente novamente.");
@@ -348,12 +350,44 @@ public class ServicoPetImpl implements ServicoPet {
     }
 
     @Override
-    public void atualizarDataDeNascimentoPet() {
-
-    }
-
-    @Override
     public void excluirPet() {
+        System.out.println("Boas vindas à exclusão de pet!");
 
+        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
+
+        Cliente cliente = gerenciadorClientes.buscarPorCpf(cpfDoTutor);
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        List<Pet> petsDoTutor = gerenciadorPets.listarPorTutor(cpfDoTutor);
+        if (petsDoTutor.isEmpty()) {
+            System.out.println("Nenhum pet encontrado para o tutor com CPF: " + cpfDoTutor);
+            return;
+        }
+
+        System.out.println("Selecione o pet que deseja excluir:\n");
+
+        for (int i = 0; i < petsDoTutor.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, petsDoTutor.get(i).getNome());
+        }
+
+        int indicePet = leitor.lerInt("Digite o número do pet escolhido") - 1;
+
+        if (indicePet < 0 || indicePet >= petsDoTutor.size()) {
+            System.out.println("Opção inválida. Tente novamente.");
+            return;
+        }
+
+        Pet pet = petsDoTutor.get(indicePet);
+        boolean confirmacao = leitor.lerBoolean("Tem certeza que deseja excluir o pet (S/N)");
+
+        if (confirmacao) {
+            gerenciadorPets.excluir(pet);
+            System.out.println("Pet " + pet.getNome() + " excluído com sucesso!");
+        } else {
+            System.out.println("Exclusão cancelada.");
+        }
     }
 }

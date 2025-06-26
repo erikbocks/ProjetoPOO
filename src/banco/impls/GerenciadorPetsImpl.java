@@ -226,6 +226,22 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
     @Override
     public void excluir(Pet entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sql = "DELETE FROM pets WHERE id = ?";
+            try (var preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setInt(1, entidade.getId());
+                preparedStatement.executeUpdate();
+            } catch (SQLException ex) {
+                System.out.println("Erro ao excluir pet: " + ex.getMessage());
+                conn.rollback();
+                return;
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            System.out.println("Não foi possível excluir o pet: " + e.getMessage());
+        }
     }
 }

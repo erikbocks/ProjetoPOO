@@ -41,11 +41,6 @@ public interface ServicoPet {
     void atualizarPet();
 
     /**
-     * Atualiza a data de nascimento de um pet.
-     */
-    void atualizarDataDeNascimentoPet();
-
-    /**
      * Exclui um pet do sistema.
      */
     void excluirPet();
