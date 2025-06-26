@@ -2,6 +2,7 @@ package banco.impls;
 
 import banco.GerenciadorPets;
 import entidades.Cliente;
+import entidades.ObservacaoPet;
 import entidades.Pet;
 
 import java.sql.ResultSet;
@@ -49,7 +50,11 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                     ResultSet rs = preparedStatementObs.executeQuery();
 
                     while (rs.next()) {
-                        pet.addObservacao(rs.getString(2));
+                        ObservacaoPet observacao = new ObservacaoPet();
+                        observacao.setId(rs.getInt(1));
+                        observacao.setPetId(rs.getInt(2));
+                        observacao.setObservacao(rs.getString(3));
+                        pet.adicionarObservacao(observacao);
                     }
                 }
             } catch (SQLException ex) {
@@ -63,17 +68,16 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
         return pets;
     }
 
-
     @Override
-    public void adicionarObservacoes(Pet pet, List<String> observacoes) {
+    public void adicionarObservacoes(Pet pet, List<ObservacaoPet> observacoes) {
         String sql = "INSERT INTO observacoes_pets (pet_id, observacao) VALUES (?, ?)";
         try (var conn = getConnectionWithFKEnabled()) {
             conn.setAutoCommit(false);
 
             try (var preparedStatement = conn.prepareStatement(sql)) {
-                for (String obs : observacoes) {
+                for (ObservacaoPet obs : observacoes) {
                     preparedStatement.setInt(1, pet.getId());
-                    preparedStatement.setString(2, obs);
+                    preparedStatement.setString(2, obs.getObservacao());
                     preparedStatement.addBatch();
                 }
                 preparedStatement.executeBatch();
@@ -85,16 +89,6 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
         } catch (SQLException e) {
             System.out.println("Não foi possível inserir as observações do pet: " + e.getMessage());
         }
-    }
-
-    @Override
-    public Pet buscarPorNome(String nome, String cpfTutor) {
-        return null;
-    }
-
-    @Override
-    public void atualizarDataDeNascimento(String nome, String cpfTutor, String novaDataDeNascimento) {
-
     }
 
     @Override
@@ -133,7 +127,11 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                     ResultSet rs = preparedStatementObs.executeQuery();
 
                     while (rs.next()) {
-                        pet.addObservacao(rs.getString(2));
+                        ObservacaoPet observacao = new ObservacaoPet();
+                        observacao.setId(rs.getInt(1));
+                        observacao.setPetId(rs.getInt(2));
+                        observacao.setObservacao(rs.getString(3));
+                        pet.adicionarObservacao(observacao);
                     }
                 }
             } catch (SQLException ex) {
@@ -174,11 +172,11 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                 return null;
             }
 
-            for (String observacao : entidade.getObservacoes()) {
+            for (ObservacaoPet observacao : entidade.getObservacoes()) {
                 String sqlObs = "INSERT INTO observacoes_pets (pet_id, observacao) VALUES (?, ?)";
                 try (var preparedStatementObs = conn.prepareStatement(sqlObs)) {
                     preparedStatementObs.setInt(1, entidade.getId());
-                    preparedStatementObs.setString(2, observacao);
+                    preparedStatementObs.setString(2, observacao.getObservacao());
                     preparedStatementObs.executeUpdate();
                 } catch (SQLException ex) {
                     System.err.println("Erro ao inserir observação do pet: " + ex.getMessage());
@@ -242,6 +240,26 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
             conn.commit();
         } catch (SQLException e) {
             System.out.println("Não foi possível excluir o pet: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void excluirObservacao(Integer id) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
+
+            String sql = "DELETE FROM observacoes_pets WHERE id = ?";
+            try (var preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setInt(1, id);
+                preparedStatement.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException ex) {
+                System.out.println("Erro ao excluir observação do pet: " + ex.getMessage());
+                conn.rollback();
+            }
+        } catch (SQLException e) {
+            System.out.println("Não foi possível excluir a observação do pet: " + e.getMessage());
         }
     }
 }

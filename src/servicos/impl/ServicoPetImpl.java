@@ -3,6 +3,7 @@ package servicos.impl;
 import banco.GerenciadorClientes;
 import banco.GerenciadorPets;
 import entidades.Cliente;
+import entidades.ObservacaoPet;
 import entidades.Pet;
 import servicos.Leitor;
 import servicos.ServicoPet;
@@ -35,6 +36,7 @@ public class ServicoPetImpl implements ServicoPet {
                 5. Listar pets do tutor.
                 6. Atualizar pet.
                 7. Excluir pet.
+                8. Excluir observação de pet.
                 0. Voltar.
                 
                 =================================================================================
@@ -66,6 +68,9 @@ public class ServicoPetImpl implements ServicoPet {
                 break;
             case 7:
                 excluirPet();
+                break;
+            case 8:
+                excluirObservacaoPet();
                 break;
             default:
                 System.err.println("Opção inválida. Tente novamente.");
@@ -162,7 +167,7 @@ public class ServicoPetImpl implements ServicoPet {
         Pet pet = optPet.get();
 
         boolean desejaAdicionarObservacao = true;
-        List<String> observacoes = pet.getObservacoes();
+        List<ObservacaoPet> observacoes = pet.getObservacoes();
 
         while (desejaAdicionarObservacao) {
             String observacao = leitor.lerString("Digite a observação");
@@ -172,7 +177,7 @@ public class ServicoPetImpl implements ServicoPet {
                 continue;
             }
 
-            observacoes.add(observacao);
+            observacoes.add(new ObservacaoPet(pet.getId(), observacao));
             desejaAdicionarObservacao = leitor.lerBoolean("Deseja adicionar mais observações?");
         }
 
@@ -212,7 +217,7 @@ public class ServicoPetImpl implements ServicoPet {
         }
 
         Pet pet = petsDoTutor.get(indicePet);
-        List<String> observacoes = pet.getObservacoes();
+        List<ObservacaoPet> observacoes = pet.getObservacoes();
 
         if (observacoes.isEmpty()) {
             System.out.println("Nenhuma observação encontrada para o pet " + pet.getNome());
@@ -386,6 +391,73 @@ public class ServicoPetImpl implements ServicoPet {
         if (confirmacao) {
             gerenciadorPets.excluir(pet);
             System.out.println("Pet " + pet.getNome() + " excluído com sucesso!");
+        } else {
+            System.out.println("Exclusão cancelada.");
+        }
+    }
+
+    @Override
+    public void excluirObservacaoPet() {
+        System.out.println("Boas vindas à exclusão de observação de pet!");
+
+        String cpfDoTutor = leitor.lerCPF("Digite o CPF do tutor");
+
+        Cliente cliente = gerenciadorClientes.buscarPorCpf(cpfDoTutor);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado. Tente novamente.");
+            return;
+        }
+
+        List<Pet> petsDoTutor = gerenciadorPets.listarPorTutor(cpfDoTutor);
+
+        if (petsDoTutor.isEmpty()) {
+            System.out.println("Nenhum pet encontrado para o tutor com CPF: " + cpfDoTutor);
+            return;
+        }
+
+        System.out.println("Selecione o pet do qual deseja excluir uma observação:\n");
+
+        for (int i = 0; i < petsDoTutor.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, petsDoTutor.get(i).getNome());
+        }
+
+        int indicePet = leitor.lerInt("Digite o número do pet escolhido") - 1;
+
+        if (indicePet < 0 || indicePet >= petsDoTutor.size()) {
+            System.out.println("Opção inválida. Tente novamente.");
+            return;
+        }
+
+        Pet pet = petsDoTutor.get(indicePet);
+
+        List<ObservacaoPet> observacoes = pet.getObservacoes();
+
+        if (observacoes.isEmpty()) {
+            System.out.println("Nenhuma observação encontrada para o pet " + pet.getNome());
+            return;
+        }
+
+        System.out.println("Selecione a observação que deseja excluir:\n");
+
+        for (int i = 0; i < observacoes.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, observacoes.get(i).getObservacao());
+        }
+
+        int indiceObservacao = leitor.lerInt("Digite o número da observação escolhida") - 1;
+
+        if (indiceObservacao < 0 || indiceObservacao >= observacoes.size()) {
+            System.out.println("Opção inválida. Tente novamente.");
+            return;
+        }
+
+        ObservacaoPet observacao = observacoes.get(indiceObservacao);
+
+        boolean confirmacao = leitor.lerBoolean("Tem certeza que deseja excluir a observação");
+
+        if (confirmacao) {
+            gerenciadorPets.excluirObservacao(observacao.getId());
+            System.out.println("Observação excluída com sucesso!");
         } else {
             System.out.println("Exclusão cancelada.");
         }

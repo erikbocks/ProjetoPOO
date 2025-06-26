@@ -11,7 +11,7 @@ public class Pet {
     private String raca;
     private LocalDateTime dataDeNascimento;
     private Sexo sexo;
-    private List<String> observacoes;
+    private List<ObservacaoPet> observacoes;
     private Cliente tutor;
 
     public Pet() {
@@ -52,7 +52,13 @@ public class Pet {
     }
 
     public void adicionarObservacao(String observacao) {
-        this.observacoes.add(observacao.trim());
+        if (observacao != null && !observacao.trim().isBlank()) {
+            this.observacoes.add(new ObservacaoPet(this.id, observacao.trim()));
+        }
+    }
+
+    public void adicionarObservacao(ObservacaoPet observacao) {
+        this.observacoes.add(observacao);
     }
 
     public static Especie procurarEspeciePorNome(String nome) {
@@ -90,7 +96,7 @@ public class Pet {
         return sexo;
     }
 
-    public List<String> getObservacoes() {
+    public List<ObservacaoPet> getObservacoes() {
         return observacoes;
     }
 
@@ -118,14 +124,8 @@ public class Pet {
         this.sexo = sexo;
     }
 
-    public void setObservacoes(List<String> observacoes) {
+    public void setObservacoes(List<ObservacaoPet> observacoes) {
         this.observacoes = observacoes;
-    }
-
-    public void addObservacao(String observacao) {
-        if (observacao != null && !observacao.trim().isBlank()) {
-            this.observacoes.add(observacao.trim());
-        }
     }
 
     public void setTutor(Cliente tutor) {
@@ -134,6 +134,6 @@ public class Pet {
 
     @Override
     public String toString() {
-        return String.format("Pet[nome=%s, especie=%s, raca=%s, dataDeNascimento=%s, sexo=%s, observacoes=%s, tutor=%s]", nome, especie, raca, dataDeNascimento, sexo, observacoes != null ? observacoes.toString() : List.of(), tutor.getNome());
+        return String.format("Pet[nome=%s, especie=%s, raca=%s, dataDeNascimento=%s, sexo=%s, observacoes=%s, tutor=%s]", nome, especie, raca, dataDeNascimento, sexo, observacoes.toString(), tutor.getNome());
     }
 }

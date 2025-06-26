@@ -44,4 +44,9 @@ public interface ServicoPet {
      * Exclui um pet do sistema.
      */
     void excluirPet();
+
+    /**
+     * Exclui uma observação de um pet.
+     */
+    void excluirObservacaoPet();
 }
