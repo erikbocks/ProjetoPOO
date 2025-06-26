@@ -108,6 +108,6 @@ public class Produto {
 
     @Override
     public String toString() {
-        return String.format("Produto[Código: %s, Nome: %s, Quantidade disponível: %d, Valor: %.2f]", codigo, nome, quantidade, valor);
+        return String.format("Produto[Código: %s, Nome: %s, Descrição: %s, Quantidade disponível: %d, Valor: %.2f, Tipo: %s]", codigo, nome, descricao, quantidade, valor, tipo);
     }
 }

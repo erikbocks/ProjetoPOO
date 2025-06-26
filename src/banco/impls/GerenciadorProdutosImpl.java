@@ -113,4 +113,31 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
 
         return produto;
     }
+
+    @Override
+    public List<Produto> listarProdutoContendoPalavra(String palavra) {
+        List<Produto> produtos = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscaProdutos = "SELECT * FROM produtos WHERE nome LIKE ? OR descricao LIKE ?;";
+            try (var pstmt = conn.prepareStatement(sqlBuscaProdutos)) {
+                pstmt.setString(1, "%" + palavra + "%");
+                pstmt.setString(2, "%" + palavra + "%");
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    Produto produto = mapearResultSet(rs);
+                    produtos.add(produto);
+                }
+
+                return produtos;
+            } catch (SQLException ex) {
+                System.err.println("Não foi possível buscar os produtos: " + ex.getMessage());
+                return null;
+            }
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível conectar ao banco de dados: " + ex.getMessage());
+            return null;
+        }
+    }
 }
