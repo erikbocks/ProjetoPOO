@@ -107,7 +107,22 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
 
     @Override
     public void excluir(Produto entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlExclusaoProduto = "DELETE FROM produtos WHERE codigo = ?;";
+            try (var pstmt = conn.prepareStatement(sqlExclusaoProduto)) {
+                pstmt.setString(1, entidade.getCodigo());
+                pstmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                System.err.println("Não foi possível excluir o produto: " + ex.getMessage());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível estabelecer uma conexão com o banco de dados: " + ex.getMessage());
+        }
     }
 
     @Override

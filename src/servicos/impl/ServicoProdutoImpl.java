@@ -56,6 +56,9 @@ public class ServicoProdutoImpl implements ServicoProduto {
             case 6:
                 atualizarProduto();
                 break;
+            case 7:
+                excluirProduto();
+                break;
             default:
                 System.err.println("Operação inválida.");
         }
@@ -224,8 +227,24 @@ public class ServicoProdutoImpl implements ServicoProduto {
 
     @Override
     public void excluirProduto() {
+        System.out.println("Boas vindas à exclusão de produto!");
 
+        String codigo = leitor.lerString("Digite o código do produto que deseja excluir");
+        Produto produto = gerenciadorProdutos.buscarPorCodigo(codigo);
+
+        if (produto == null) {
+            System.out.println("Nenhum produto encontrado com o código digitado");
+            return;
+        }
+
+        boolean confirmacao = leitor.lerBoolean("Tem certeza que deseja excluir o produto ");
+
+        if (!confirmacao) {
+            System.out.println("Exclusão cancelada.");
+            return;
+        }
+
+        gerenciadorProdutos.excluir(produto);
+        System.out.println("Produto excluído com sucesso!");
     }
-
-
 }
