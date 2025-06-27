@@ -14,6 +14,22 @@ public class Veterinario extends Usuario {
         this.CRMV = CRMV;
     }
 
+    public String getEspecialidade() {
+        return especialidade;
+    }
+
+    public String getCRMV() {
+        return CRMV;
+    }
+
+    public void setEspecialidade(String especialidade) {
+        this.especialidade = especialidade;
+    }
+
+    public void setCRMV(String CRMV) {
+        this.CRMV = CRMV;
+    }
+
     @Override
     public String toString() {
         return String.format("Veterinario[cpf=%s, telefone=%s, dataDeNascimento=%s, email=%s, nome=%s, endereco=%s, especialidade=%s, CRMV=%s]", cpf, telefone, dataDeNascimento.format(DateTimeFormatter.ofPattern("dd MMM yyyy - HH:mm", Locale.ROOT)), email, nome, endereco, especialidade, CRMV);

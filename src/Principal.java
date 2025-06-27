@@ -2,6 +2,7 @@ import banco.impls.GerenciadorClientesImpl;
 import banco.impls.GerenciadorFuncionariosImpl;
 import banco.impls.GerenciadorProdutosImpl;
 import banco.impls.GerenciadorPetsImpl;
+import banco.impls.GerenciadorVeterinariosImpl;
 import entidades.Cliente;
 import entidades.Consulta;
 import entidades.Endereco;
@@ -18,10 +19,12 @@ import servicos.ServicoCliente;
 import servicos.ServicoFuncionario;
 import servicos.ServicoProduto;
 import servicos.ServicoPet;
+import servicos.ServicoVeterinario;
 import servicos.impl.ServicoClienteImpl;
 import servicos.impl.ServicoFuncionarioImpl;
 import servicos.impl.ServicoProdutoImpl;
 import servicos.impl.ServicoPetImpl;
+import servicos.impl.ServicoVeterinarioImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,9 +37,8 @@ public class Principal {
     private ServicoCliente servicoCliente = new ServicoClienteImpl(leitor, new GerenciadorClientesImpl());
     private ServicoProduto servicoProduto = new ServicoProdutoImpl(leitor, new GerenciadorProdutosImpl());
     private ServicoPet servicoPet = new ServicoPetImpl(leitor, new GerenciadorPetsImpl(), new GerenciadorClientesImpl());
-    public List<Produto> produtos = new ArrayList<>();
+    private ServicoVeterinario servicoVeterinario = new ServicoVeterinarioImpl(leitor, new GerenciadorVeterinariosImpl());
     public List<Venda> vendas = new ArrayList<>();
-    public List<Veterinario> veterinarios = new ArrayList<>();
     public List<Consulta> consultas = new ArrayList<>();
     public List<Prontuario> prontuarios = new ArrayList<>();
 
@@ -74,6 +76,9 @@ public class Principal {
                     break;
                 case 4:
                     servicoProduto.mostrarMenu();
+                    break;
+                case 5:
+                    servicoVeterinario.mostrarMenu();
                     break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
@@ -125,7 +130,6 @@ public class Principal {
         boolean vendaAberta = true;
 
         while (vendaAberta) {
-            listarProdutosCadastradosEmEstoque();
             String codigoDoProduto = leitor.lerString("Digite o nome do produto que deseja adicionar à venda (ou 'sair' para finalizar):");
 
             if (codigoDoProduto.equalsIgnoreCase("sair") && itensSelecionados.isEmpty()) {
@@ -137,7 +141,7 @@ public class Principal {
                 break;
             }
 
-            Produto produto = produtos.stream().filter(p -> p.getCodigo().equalsIgnoreCase(codigoDoProduto)).findFirst().orElse(null);
+            Produto produto = null;
 
             if (produto == null) {
                 System.out.println("Produto não encontrado. Tente novamente.");
@@ -159,12 +163,12 @@ public class Principal {
             vendaAberta = leitor.lerBoolean("Deseja adicionar mais produtos à venda");
         }
 
-        venda.fecharVenda(itensSelecionados, produtos);
+        venda.fecharVenda(itensSelecionados, null);
         vendas.add(venda);
     }
 
     private void cadastrarVeterinario() {
-        System.out.println("Boas vindas ao cadastro de veterinário!");
+
 
         Funcionario funcionario = autenticarFuncionario();
 
@@ -177,7 +181,7 @@ public class Principal {
         while (true) {
             cpf = leitor.lerCPF("Digite o CPF do veterinário");
 
-            if (cpfCadastrado(cpf, veterinarios)) {
+            if (cpfCadastrado(cpf, null)) {
                 System.err.println("CPF já cadastrado. Tente novamente.");
             } else {
                 break;
@@ -193,7 +197,6 @@ public class Principal {
         Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário");
 
         Veterinario novoVeterinario = new Veterinario(cpf, celular, dataDeNascimento, email, nome, endereco, especialidade, CRMV);
-        veterinarios.add(novoVeterinario);
     }
 
     private void cadastrarConsulta() {
@@ -217,7 +220,7 @@ public class Principal {
 
         String cpfDoVeterinario = leitor.lerCPF("Digite o CPF do veterinário");
 
-        Veterinario veterinario = veterinarios.stream().filter(v -> v.getCpf().equals(cpfDoVeterinario)).findFirst().orElse(null);
+        Veterinario veterinario = null;
 
         if (veterinario == null) {
             System.err.println("Veterinário não encontrado. Tente novamente.");
@@ -315,12 +318,6 @@ public class Principal {
         System.out.println("===========================================");
     }
 
-    private void listarVeterinarios() {
-        System.out.println("=========== LISTA DE VETERINÁRIOS =============");
-        veterinarios.forEach(System.out::println);
-        System.out.println("===============================================");
-    }
-
     private void listarProntuarios() {
         System.out.println("=========== LISTA DE PRONTUÁRIOS =============");
         prontuarios.forEach(System.out::println);
@@ -350,12 +347,6 @@ public class Principal {
     private void listarConsultasEmAberto() {
         System.out.println("=========== LISTA DE CONSULTAS =============");
         consultas.stream().filter(c -> c.getStatus() == Consulta.Status.ABERTA).forEach(System.out::println);
-        System.out.println("============================================");
-    }
-
-    private void listarProdutosCadastradosEmEstoque() {
-        System.out.println("=========== LISTA DE PRODUTOS =============");
-        produtos.stream().filter(p -> p.getQuantidade() > 0).forEach(System.out::println);
         System.out.println("============================================");
     }
 

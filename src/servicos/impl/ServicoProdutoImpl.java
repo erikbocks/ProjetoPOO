@@ -38,6 +38,9 @@ public class ServicoProdutoImpl implements ServicoProduto {
         int opcaoOperacao = leitor.lerInt("Digite a opção desejada");
 
         switch (opcaoOperacao) {
+            case 0:
+                System.out.println("Retornando ao menu principal...");
+                return;
             case 1:
                 cadastrarProduto();
                 break;
