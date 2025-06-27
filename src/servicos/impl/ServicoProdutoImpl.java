@@ -5,6 +5,7 @@ import entidades.Produto;
 import servicos.Leitor;
 import servicos.ServicoProduto;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,6 +52,9 @@ public class ServicoProdutoImpl implements ServicoProduto {
                 break;
             case 5:
                 listarProdutosPorTipo();
+                break;
+            case 6:
+                atualizarProduto();
                 break;
             default:
                 System.err.println("Operação inválida.");
@@ -155,7 +159,67 @@ public class ServicoProdutoImpl implements ServicoProduto {
 
     @Override
     public void atualizarProduto() {
+        System.out.println("Boas vindas à atualização de produto!");
 
+        String codigo = leitor.lerString("Digite o código do produto que deseja atualizar");
+
+        Produto produto = gerenciadorProdutos.buscarPorCodigo(codigo);
+
+        if (produto == null) {
+            System.out.println("Nenhum produto encontrado com o código digitado");
+            return;
+        }
+
+        String nome = leitor.lerString("Digite o novo nome do produto (Deixe em branco para não alterar)");
+
+        if (!nome.isBlank() && !nome.equals(produto.getNome())) {
+            produto.setNome(nome);
+        }
+
+        int quantidade = leitor.lerInt("Digite a nova quantidade do produto (Digite -1 para não alterar)");
+
+        if (quantidade != -1) {
+            produto.setQuantidade(quantidade);
+        } else {
+            System.out.println("Quantidade não alterada, mantendo o valor atual: " + produto.getQuantidade());
+        }
+
+        double valor = leitor.lerDouble("Digite o novo valor do produto (Deixe em branco para não alterar)");
+
+        if (valor != -1) {
+            produto.setValor(valor);
+        } else {
+            System.out.println("Valor não alterado, mantendo o valor atual.");
+        }
+
+        String novoTipo = leitor.lerString(String.format("""
+                ==========================================
+                Selecione o novo tipo do produto (Deixe em branco para não alterar):
+                
+                %s
+                
+                ==========================================
+                """, Arrays.toString(Produto.TipoProduto.values())));
+
+        if (!novoTipo.isBlank()) {
+            Produto.TipoProduto tipoProduto = Produto.procurarTipoDeProdutoPorNome(novoTipo);
+            if (tipoProduto != null) {
+                produto.setTipo(tipoProduto);
+            } else {
+                System.err.println("Tipo de produto inválido. Mantendo o tipo atual");
+            }
+        }
+
+        String descricao = leitor.lerString("Digite a nova descrição do produto (OPCIONAL, deixe em branco para não alterar)");
+
+        if (!descricao.isBlank()) {
+            produto.setDescricao(descricao);
+        }
+
+        produto.setUltimaAtualizacao(LocalDateTime.now());
+        gerenciadorProdutos.atualizar(produto);
+
+        System.out.println("Produto atualizado com sucesso!");
     }
 
     @Override

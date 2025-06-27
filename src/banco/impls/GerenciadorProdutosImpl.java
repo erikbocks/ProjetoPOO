@@ -35,7 +35,7 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
         }
     }
 
-    private Produto mapearResultSet(ResultSet rs) throws SQLException{
+    private Produto mapearResultSet(ResultSet rs) throws SQLException {
         Produto produto = new Produto();
 
         produto.setCodigo(rs.getString(1));
@@ -81,7 +81,28 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
 
     @Override
     public void atualizar(Produto entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlAtualizacaoProduto = "UPDATE produtos SET nome = ?, descricao = ?, quantidade = ?, valor = ?, ultima_atualizacao = ?, tipo = ? WHERE codigo = ?;";
+            try (var pstmt = conn.prepareStatement(sqlAtualizacaoProduto)) {
+                pstmt.setString(1, entidade.getNome());
+                pstmt.setString(2, entidade.getDescricao());
+                pstmt.setInt(3, entidade.getQuantidade());
+                pstmt.setDouble(4, entidade.getValor());
+                pstmt.setString(5, entidade.getUltimaAtualizacao().toString());
+                pstmt.setString(6, entidade.getTipo().name());
+                pstmt.setString(7, entidade.getCodigo());
+                pstmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException ex) {
+                conn.rollback();
+                System.err.println("Não foi possível atualizar o produto: " + ex.getMessage());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível estabelecer uma conexão com o banco de dados: " + ex.getMessage());
+        }
     }
 
     @Override
