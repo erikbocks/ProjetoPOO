@@ -63,6 +63,27 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
 
     @Override
     public Veterinario buscarPorCpf(String cpf) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscarPorCpf = "SELECT * FROM veterinarios v INNER JOIN enderecos_veterinarios ev ON v.cpf = ev.cpf_veterinario WHERE v.cpf = ?";
+            try (var pstmt = conn.prepareStatement(sqlBuscarPorCpf)) {
+                pstmt.setString(1, cpf);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    int index = 1;
+                    Veterinario veterinario = new Veterinario();
+                    index = mapearResultSetParaEntidade(veterinario, rs, index);
+
+                    Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                    veterinario.setEndereco(endereco);
+
+                    return veterinario;
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
+        }
+
         return null;
     }
 
@@ -173,7 +194,49 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
 
     @Override
     public void atualizar(Veterinario entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlAtualizacaoVeterinarios = "UPDATE veterinarios SET nome = ?, email = ?, telefone = ?, data_nascimento = ?, especialidade = ?, crmv = ? WHERE cpf = ?";
+            try (var stmt = conn.prepareStatement(sqlAtualizacaoVeterinarios)) {
+                int index = 1;
+                stmt.setString(index++, entidade.getNome());
+                stmt.setString(index++, entidade.getEmail());
+                stmt.setString(index++, entidade.getTelefone());
+                stmt.setString(index++, entidade.getDataDeNascimento().toString());
+                stmt.setString(index++, entidade.getEspecialidade());
+                stmt.setString(index++, entidade.getCRMV());
+                stmt.setString(index, entidade.getCpf());
+
+                stmt.executeUpdate();
+            } catch (SQLException ex) {
+                conn.rollback();
+                System.out.println("Erro ao atualizar veterinário: " + ex.getMessage());
+                return;
+            }
+
+            String sqlEndereco = "UPDATE enderecos_veterinarios SET estado = ?, cidade = ?, rua = ?, numero = ?, complemento = ? WHERE cpf_veterinario = ?";
+            try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco)) {
+                Endereco endereco = entidade.getEndereco();
+                int index = 1;
+                pstmtEndereco.setString(index++, endereco.getEstado().toString());
+                pstmtEndereco.setString(index++, endereco.getCidade());
+                pstmtEndereco.setString(index++, endereco.getRua());
+                pstmtEndereco.setInt(index++, endereco.getNumero());
+                pstmtEndereco.setString(index++, endereco.getComplemento());
+                pstmtEndereco.setString(index, entidade.getCpf());
+
+                pstmtEndereco.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Erro ao atualizar endereço: " + e.getMessage());
+                conn.rollback();
+                return;
+            }
+
+            conn.commit();
+        } catch (Exception e) {
+            System.out.println("Erro ao estabelecer conexão com o banco de dados: " + e.getMessage());
+        }
     }
 
     @Override

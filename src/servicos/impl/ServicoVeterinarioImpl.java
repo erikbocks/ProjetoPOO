@@ -26,9 +26,11 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
                 1. Cadastrar veterinário.
                 2. Listar veterinários.
                 3. Buscar veterinários por especialidade.
-                4. Atualizar veterinário.
-                5. Desativar veterinário.
-                6. Excluir veterinário.
+                4. Buscar veterinário por CPF.
+                5. Buscar veterinário por CRMV.
+                6. Atualizar veterinário.
+                7. Desativar veterinário.
+                8. Excluir veterinário.
                 0. Voltar.
                 
                 ====================================================================================
@@ -50,12 +52,18 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
                 buscarVeterinariosPorEspecialidade();
                 break;
             case 4:
-                atualizarVeterinario();
+                buscarVeterinarioPorCPF();
                 break;
             case 5:
-                desativarVeterinario();
+                buscarVeterinarioPorCRMV();
                 break;
             case 6:
+                atualizarVeterinario();
+                break;
+            case 7:
+                desativarVeterinario();
+                break;
+            case 8:
                 excluirVeterinario();
                 break;
             default:
@@ -118,6 +126,27 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
     }
 
     @Override
+    public void buscarVeterinarioPorCPF() {
+        System.out.println("Boas vindas à busca de veterinário por CPF!");
+
+        String cpf = leitor.lerCPF("Digite o CPF do veterinário que deseja buscar");
+        Veterinario veterinario = gerenciadorVeterinarios.buscarPorCpf(cpf);
+
+        if (veterinario == null) {
+            System.err.println("Veterinário não encontrado com o CPF: " + cpf);
+            return;
+        }
+
+        System.out.println("Veterinário encontrado.");
+        System.out.println(veterinario);
+    }
+
+    @Override
+    public void buscarVeterinarioPorCRMV() {
+
+    }
+
+    @Override
     public void buscarVeterinariosPorEspecialidade() {
         System.out.println("Boas vindas à busca de veterinários por especialidade!");
 
@@ -138,7 +167,61 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
 
     @Override
     public void atualizarVeterinario() {
+        System.out.println("Boas vindas à atualização de veterinário!");
 
+        String cpf = leitor.lerCPF("Digite o CPF do veterinário que deseja atualizar");
+        Veterinario veterinario = gerenciadorVeterinarios.buscarPorCpf(cpf);
+
+        if (veterinario == null) {
+            System.err.println("Veterinário não encontrado com o CPF: " + cpf);
+            return;
+        }
+
+        String nome = leitor.lerString("Digite o novo nome do veterinário (deixe em branco para não alterar)");
+        if (!nome.isBlank() && !nome.equals(veterinario.getNome())) {
+            veterinario.setNome(nome);
+        }
+        ;
+
+        String email = leitor.lerString("Digite o novo email do veterinário (deixe em branco para não alterar)");
+        if (!email.isBlank() && !email.equals(veterinario.getEmail())) {
+            veterinario.setEmail(email);
+        }
+
+        String telefone = leitor.lerString("Digite o novo telefone do veterinário (deixe em branco para não alterar)");
+
+        if (telefone.length() != 11) {
+            System.err.println("Telefone inválido. Deve conter 11 dígitos.");
+            return;
+        }
+
+        if (!telefone.isBlank() && !telefone.equals(veterinario.getTelefone())) {
+            veterinario.setTelefone(telefone);
+        }
+
+        String especialidade = leitor.lerString("Digite a nova especialidade do veterinário (deixe em branco para não alterar)");
+        if (!especialidade.isBlank() && !especialidade.equals(veterinario.getEspecialidade())) {
+            veterinario.setEspecialidade(especialidade);
+        }
+
+        boolean desejaAtualizarNascimento = leitor.lerBoolean("Deseja atualizar a data de nascimento do veterinário");
+        if (desejaAtualizarNascimento) {
+            LocalDateTime dataNascimento = leitor.lerData("Digite a nova data de nascimento do veterinário");
+            if (!dataNascimento.isEqual(veterinario.getDataDeNascimento())) {
+                veterinario.setDataDeNascimento(dataNascimento);
+            }
+        }
+
+        boolean desejaAtualizarEndereco = leitor.lerBoolean("Deseja atualizar o endereço do veterinário");
+        if (desejaAtualizarEndereco) {
+            Endereco endereco = leitor.lerEndereco("Digite o novo endereço do veterinário");
+            if (!endereco.equals(veterinario.getEndereco())) {
+                veterinario.setEndereco(endereco);
+            }
+        }
+
+        gerenciadorVeterinarios.atualizar(veterinario);
+        System.out.println("Veterinário atualizado com sucesso!");
     }
 
     @Override

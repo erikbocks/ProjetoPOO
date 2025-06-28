@@ -7,6 +7,10 @@ public interface ServicoVeterinario {
 
     void listarVeterinarios();
 
+    void buscarVeterinarioPorCPF();
+
+    void buscarVeterinarioPorCRMV();
+
     void buscarVeterinariosPorEspecialidade();
 
     void atualizarVeterinario();
