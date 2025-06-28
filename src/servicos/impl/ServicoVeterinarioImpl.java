@@ -79,12 +79,12 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
             }
         }
 
-        String nome = leitor.lerString("Digite o nome do veterinário:");
-        String email = leitor.lerString("Digite o email do veterinário:");
-        String telefone = leitor.lerString("Digite o telefone do veterinário:");
-        String especialidade = leitor.lerString("Digite a especialidade do veterinário:");
-        LocalDateTime dataNascimento = leitor.lerData("Digite a data de nascimento do veterinário:");
-        Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário:");
+        String nome = leitor.lerString("Digite o nome do veterinário");
+        String email = leitor.lerString("Digite o email do veterinário");
+        String telefone = leitor.lerString("Digite o telefone do veterinário");
+        String especialidade = leitor.lerString("Digite a especialidade do veterinário");
+        LocalDateTime dataNascimento = leitor.lerData("Digite a data de nascimento do veterinário");
+        Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário");
 
         String crmv;
         while (true) {
@@ -119,7 +119,21 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
 
     @Override
     public void buscarVeterinariosPorEspecialidade() {
+        System.out.println("Boas vindas à busca de veterinários por especialidade!");
 
+        String especialidade = leitor.lerString("Digite a especialidade que deseja buscar");
+
+        List<Veterinario> veterinarios = gerenciadorVeterinarios.buscarPorEspecialidade(especialidade);
+
+        System.out.println("=================================== RESULTADOS DA BUSCA ===================================");
+        if (veterinarios.isEmpty()) {
+            System.out.println("Nenhum veterinário encontrado com a especialidade: " + especialidade);
+        } else {
+            for (Veterinario veterinario : veterinarios) {
+                System.out.println(veterinario);
+            }
+        }
+        System.out.println("===============================================================================================");
     }
 
     @Override

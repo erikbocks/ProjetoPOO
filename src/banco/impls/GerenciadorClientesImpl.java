@@ -24,7 +24,7 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                Integer index = 1;
+                int index = 1;
                 cliente = new Cliente();
                 index = mapearResultSetParaEntidade(cliente, rs, index);
 
@@ -62,12 +62,13 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             String sqlEndereco = "UPDATE enderecos_clientes SET estado = ?, cidade = ?, rua = ?, numero = ?, complemento = ? WHERE cpf_cliente = ?";
 
             try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco)) {
-                pstmtEndereco.setString(1, endereco.getEstado().toString());
-                pstmtEndereco.setString(2, endereco.getCidade());
-                pstmtEndereco.setString(3, endereco.getRua());
-                pstmtEndereco.setInt(4, endereco.getNumero());
-                pstmtEndereco.setString(5, endereco.getComplemento());
-                pstmtEndereco.setString(6, cpf);
+                int index = 1;
+                pstmtEndereco.setString(index++, endereco.getEstado().toString());
+                pstmtEndereco.setString(index++, endereco.getCidade());
+                pstmtEndereco.setString(index++, endereco.getRua());
+                pstmtEndereco.setInt(index++, endereco.getNumero());
+                pstmtEndereco.setString(index++, endereco.getComplemento());
+                pstmtEndereco.setString(index, cpf);
                 pstmtEndereco.executeUpdate();
 
                 conn.commit();
@@ -110,7 +111,7 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Integer index = 1;
+                int index = 1;
                 Cliente cliente = new Cliente();
                 index = mapearResultSetParaEntidade(cliente, rs, index);
 
@@ -135,13 +136,14 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
 
             String sqlCliente = "INSERT INTO clientes (cpf, nome, email, telefone, data_cadastro, data_nascimento, ativo) VALUES (?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(sqlCliente)) {
-                pstmt.setString(1, entidade.getCpf());
-                pstmt.setString(2, entidade.getNome());
-                pstmt.setObject(3, entidade.getEmail());
-                pstmt.setString(4, entidade.getTelefone());
-                pstmt.setString(5, entidade.getDataDeCadastro().toString());
-                pstmt.setString(6, entidade.getDataDeNascimento().toString());
-                pstmt.setObject(7, entidade.getAtivo());
+                int index = 1;
+                pstmt.setString(index++, entidade.getCpf());
+                pstmt.setString(index++, entidade.getNome());
+                pstmt.setObject(index++, entidade.getEmail());
+                pstmt.setString(index++, entidade.getTelefone());
+                pstmt.setString(index++, entidade.getDataDeCadastro().toString());
+                pstmt.setString(index++, entidade.getDataDeNascimento().toString());
+                pstmt.setObject(index, entidade.getAtivo());
 
                 pstmt.executeUpdate();
             } catch (SQLException e) {
@@ -153,12 +155,13 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             String sqlEndereco = "INSERT INTO enderecos_clientes (estado, cidade, rua, numero, complemento, cpf_cliente) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 Endereco endereco = entidade.getEndereco();
-                pstmtEndereco.setString(1, endereco.getEstado().toString());
-                pstmtEndereco.setString(2, endereco.getCidade());
-                pstmtEndereco.setString(3, endereco.getRua());
-                pstmtEndereco.setInt(4, endereco.getNumero());
-                pstmtEndereco.setString(5, endereco.getComplemento());
-                pstmtEndereco.setString(6, entidade.getCpf());
+                int index = 1;
+                pstmtEndereco.setString(index++, endereco.getEstado().toString());
+                pstmtEndereco.setString(index++, endereco.getCidade());
+                pstmtEndereco.setString(index++, endereco.getRua());
+                pstmtEndereco.setInt(index++, endereco.getNumero());
+                pstmtEndereco.setString(index++, endereco.getComplemento());
+                pstmtEndereco.setString(index, entidade.getCpf());
                 pstmtEndereco.executeUpdate();
 
                 ResultSet idEndereco = pstmtEndereco.getGeneratedKeys();

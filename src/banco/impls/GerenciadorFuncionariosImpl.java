@@ -22,7 +22,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                Integer index = 1;
+                int index = 1;
                 funcionario = new Funcionario();
                 index = mapearResultSetParaEntidade(funcionario, rs, index);
 
@@ -111,7 +111,7 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Integer index = 1;
+                int index = 1;
                 Funcionario funcionario = new Funcionario();
                 index = mapearResultSetParaEntidade(funcionario, rs, index);
 

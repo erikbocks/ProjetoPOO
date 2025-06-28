@@ -24,7 +24,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                 preparedStatement.setString(1, cpfTutor);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
-                    Integer index = 1;
+                    int index = 1;
                     Pet pet = new Pet();
                     index = mapearResultSetParaEntidade(pet, resultSet, index);
 
@@ -47,7 +47,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                     ResultSet rs = preparedStatementObs.executeQuery();
 
                     while (rs.next()) {
-                        Integer index = 1;
+                        int index = 1;
                         ObservacaoPet observacao = new ObservacaoPet();
                         observacao.setId(rs.getInt(index++));
                         observacao.setPetId(rs.getInt(index++));
@@ -74,7 +74,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
             try (var preparedStatement = conn.prepareStatement(sql)) {
                 for (ObservacaoPet obs : observacoes) {
-                    Integer index = 1;
+                    int index = 1;
                     preparedStatement.setInt(index++, pet.getId());
                     preparedStatement.setString(index, obs.getObservacao());
                     preparedStatement.addBatch();
@@ -100,7 +100,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
             try (var preparedStatement = conn.prepareStatement(sql)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
-                    Integer index = 1;
+                    int index = 1;
                     Pet pet = new Pet();
                     index = mapearResultSetParaEntidade(pet, resultSet, index);
 
@@ -123,7 +123,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                     ResultSet rs = preparedStatementObs.executeQuery();
 
                     while (rs.next()) {
-                        Integer index = 1;
+                        int index = 1;
                         ObservacaoPet observacao = new ObservacaoPet();
                         observacao.setId(rs.getInt(index++));
                         observacao.setPetId(rs.getInt(index++));
@@ -149,7 +149,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
             String sql = "INSERT INTO pets (nome, especie, raca, data_nascimento, sexo, tutor) VALUES (?, ?, ?, ?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
-                Integer index = 1;
+                int index = 1;
                 preparedStatement.setString(index++, entidade.getNome());
                 preparedStatement.setString(index++, entidade.getEspecie().name());
                 preparedStatement.setString(index++, entidade.getRaca());
@@ -173,7 +173,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
             for (ObservacaoPet observacao : entidade.getObservacoes()) {
                 String sqlObs = "INSERT INTO observacoes_pets (pet_id, observacao) VALUES (?, ?)";
                 try (var preparedStatementObs = conn.prepareStatement(sqlObs)) {
-                    Integer index = 1;
+                    int index = 1;
                     preparedStatementObs.setInt(index++, entidade.getId());
                     preparedStatementObs.setString(index, observacao.getObservacao());
                     preparedStatementObs.executeUpdate();
@@ -200,7 +200,7 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
             String sql = "UPDATE pets SET nome = ?, especie = ?, raca = ?, data_nascimento = ?, sexo = ? WHERE id = ?";
             try (var preparedStatement = conn.prepareStatement(sql)) {
-                Integer index = 1;
+                int index = 1;
                 preparedStatement.setString(index++, entidade.getNome());
                 preparedStatement.setString(index++, entidade.getEspecie().name());
                 preparedStatement.setString(index++, entidade.getRaca());

@@ -33,6 +33,35 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
     }
 
     @Override
+    public List<Veterinario> buscarPorEspecialidade(String especialidade) {
+        List<Veterinario> veterinarios = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscarPorEspecialidade = "SELECT * FROM veterinarios v INNER JOIN enderecos_veterinarios ev ON v.cpf = ev.cpf_veterinario WHERE v.especialidade = ?";
+            try (var pstmt = conn.prepareStatement(sqlBuscarPorEspecialidade)) {
+                pstmt.setString(1, especialidade);
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    int index = 1;
+                    Veterinario veterinario = new Veterinario();
+                    index = mapearResultSetParaEntidade(veterinario, rs, index);
+
+                    Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                    veterinario.setEndereco(endereco);
+
+                    veterinarios.add(veterinario);
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
+            return null;
+        }
+
+        return veterinarios;
+    }
+
+    @Override
     public Veterinario buscarPorCpf(String cpf) {
         return null;
     }
@@ -73,7 +102,7 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Integer index = 1;
+                    int index = 1;
                     Veterinario veterinario = new Veterinario();
                     index = mapearResultSetParaEntidade(veterinario, rs, index);
 
@@ -94,17 +123,20 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
     @Override
     public Veterinario inserir(Veterinario entidade) {
         try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
+
             String sqlInsercaoVeterinarios = "INSERT INTO veterinarios (cpf, nome, email, telefone, data_cadastro, data_nascimento, ativo, especialidade, crmv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             try (var stmt = conn.prepareStatement(sqlInsercaoVeterinarios)) {
-                stmt.setString(1, entidade.getCpf());
-                stmt.setString(2, entidade.getNome());
-                stmt.setString(3, entidade.getEmail());
-                stmt.setString(4, entidade.getTelefone());
-                stmt.setString(5, entidade.getDataDeCadastro().toString());
-                stmt.setString(6, entidade.getDataDeNascimento().toString());
-                stmt.setBoolean(7, entidade.getAtivo());
-                stmt.setString(8, entidade.getEspecialidade());
-                stmt.setString(9, entidade.getCRMV());
+                int index = 1;
+                stmt.setString(index++, entidade.getCpf());
+                stmt.setString(index++, entidade.getNome());
+                stmt.setString(index++, entidade.getEmail());
+                stmt.setString(index++, entidade.getTelefone());
+                stmt.setString(index++, entidade.getDataDeCadastro().toString());
+                stmt.setString(index++, entidade.getDataDeNascimento().toString());
+                stmt.setBoolean(index++, entidade.getAtivo());
+                stmt.setString(index++, entidade.getEspecialidade());
+                stmt.setString(index, entidade.getCRMV());
 
                 stmt.executeUpdate();
             } catch (SQLException ex) {
@@ -116,12 +148,13 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
             String sqlEndereco = "INSERT INTO enderecos_veterinarios (estado, cidade, rua, numero, complemento, cpf_veterinario) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement pstmtEndereco = conn.prepareStatement(sqlEndereco)) {
                 Endereco endereco = entidade.getEndereco();
-                pstmtEndereco.setString(1, endereco.getEstado().toString());
-                pstmtEndereco.setString(2, endereco.getCidade());
-                pstmtEndereco.setString(3, endereco.getRua());
-                pstmtEndereco.setInt(4, endereco.getNumero());
-                pstmtEndereco.setString(5, endereco.getComplemento());
-                pstmtEndereco.setString(6, entidade.getCpf());
+                int index = 1;
+                pstmtEndereco.setString(index++, endereco.getEstado().toString());
+                pstmtEndereco.setString(index++, endereco.getCidade());
+                pstmtEndereco.setString(index++, endereco.getRua());
+                pstmtEndereco.setInt(index++, endereco.getNumero());
+                pstmtEndereco.setString(index++, endereco.getComplemento());
+                pstmtEndereco.setString(index, entidade.getCpf());
                 pstmtEndereco.executeUpdate();
             } catch (SQLException e) {
                 System.err.println("Erro ao inserir endereço: " + e.getMessage());

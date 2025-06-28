@@ -20,7 +20,7 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Integer index = 1;
+                    int index = 1;
                     Produto produto = new Produto();
                     mapearResultSetParaEntidade(produto, rs, index);
                     produtos.add(produto);
@@ -44,7 +44,7 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
 
             String sqlAdicaoProduto = "INSERT INTO produtos(codigo,nome,descricao,quantidade,valor,ultima_atualizacao,tipo) VALUES(?,?,?,?,?,?,?);";
             try (var ptsmt = conn.prepareStatement(sqlAdicaoProduto, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                Integer index = 1;
+                int index = 1;
                 ptsmt.setString(index++, entidade.getCodigo());
                 ptsmt.setString(index++, entidade.getNome());
                 ptsmt.setString(index++, entidade.getDescricao());
@@ -75,7 +75,7 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
 
             String sqlAtualizacaoProduto = "UPDATE produtos SET nome = ?, descricao = ?, quantidade = ?, valor = ?, ultima_atualizacao = ?, tipo = ? WHERE codigo = ?;";
             try (var pstmt = conn.prepareStatement(sqlAtualizacaoProduto)) {
-                Integer index = 1;
+                int index = 1;
                 pstmt.setString(index++, entidade.getNome());
                 pstmt.setString(index++, entidade.getDescricao());
                 pstmt.setInt(index++, entidade.getQuantidade());
@@ -126,7 +126,7 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 if (rs.next()) {
-                    Integer index = 1;
+                    int index = 1;
                     produto = new Produto();
                     mapearResultSetParaEntidade(produto, rs, index);
                 }
@@ -154,7 +154,7 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Integer index = 1;
+                    int index = 1;
                     Produto produto = new Produto();
                     mapearResultSetParaEntidade(produto, rs, index);
                     produtos.add(produto);
@@ -182,7 +182,7 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Integer index = 1;
+                    int index = 1;
                     Produto produto = new Produto();
                     mapearResultSetParaEntidade(produto, rs, index);
                     produtos.add(produto);

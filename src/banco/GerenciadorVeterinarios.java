@@ -2,6 +2,8 @@ package banco;
 
 import entidades.Veterinario;
 
+import java.util.List;
+
 public interface GerenciadorVeterinarios extends GerenciadorUsuarios<Veterinario> {
 
     /**
@@ -19,4 +21,11 @@ public interface GerenciadorVeterinarios extends GerenciadorUsuarios<Veterinario
      * @return true se o CRMV já estiver cadastrado, false caso contrário
      */
     boolean verificarCRMV(String crmv);
+
+    /**
+     * Busca veterinários com determinada especialidade.
+     * @param especialidade a especialidade a ser buscada
+     * @return uma lista com todos os veterinários encontrados com aquela especialidade
+     */
+    List<Veterinario> buscarPorEspecialidade(String especialidade);
 }
