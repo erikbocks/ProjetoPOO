@@ -20,7 +20,9 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Produto produto = mapearResultSet(rs);
+                    Integer index = 1;
+                    Produto produto = new Produto();
+                    mapearResultSetParaEntidade(produto, rs, index);
                     produtos.add(produto);
                 }
 
@@ -35,20 +37,6 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
         }
     }
 
-    private Produto mapearResultSet(ResultSet rs) throws SQLException {
-        Produto produto = new Produto();
-
-        produto.setCodigo(rs.getString(1));
-        produto.setNome(rs.getString(2));
-        produto.setDescricao(rs.getString(3));
-        produto.setQuantidade(rs.getInt(4));
-        produto.setValor(rs.getDouble(5));
-        produto.setUltimaAtualizacao(LocalDateTime.parse(rs.getString(6)));
-        produto.setTipo(Produto.TipoProduto.valueOf(rs.getString(7)));
-
-        return produto;
-    }
-
     @Override
     public Produto inserir(Produto entidade) {
         try (var conn = getConnectionWithFKEnabled()) {
@@ -56,13 +44,14 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
 
             String sqlAdicaoProduto = "INSERT INTO produtos(codigo,nome,descricao,quantidade,valor,ultima_atualizacao,tipo) VALUES(?,?,?,?,?,?,?);";
             try (var ptsmt = conn.prepareStatement(sqlAdicaoProduto, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                ptsmt.setString(1, entidade.getCodigo());
-                ptsmt.setString(2, entidade.getNome());
-                ptsmt.setString(3, entidade.getDescricao());
-                ptsmt.setInt(4, entidade.getQuantidade());
-                ptsmt.setDouble(5, entidade.getValor());
-                ptsmt.setString(6, entidade.getUltimaAtualizacao().toString());
-                ptsmt.setString(7, entidade.getTipo().name());
+                Integer index = 1;
+                ptsmt.setString(index++, entidade.getCodigo());
+                ptsmt.setString(index++, entidade.getNome());
+                ptsmt.setString(index++, entidade.getDescricao());
+                ptsmt.setInt(index++, entidade.getQuantidade());
+                ptsmt.setDouble(index++, entidade.getValor());
+                ptsmt.setString(index++, entidade.getUltimaAtualizacao().toString());
+                ptsmt.setString(index, entidade.getTipo().name());
                 ptsmt.executeUpdate();
             } catch (SQLException ex) {
                 conn.rollback();
@@ -86,13 +75,14 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
 
             String sqlAtualizacaoProduto = "UPDATE produtos SET nome = ?, descricao = ?, quantidade = ?, valor = ?, ultima_atualizacao = ?, tipo = ? WHERE codigo = ?;";
             try (var pstmt = conn.prepareStatement(sqlAtualizacaoProduto)) {
-                pstmt.setString(1, entidade.getNome());
-                pstmt.setString(2, entidade.getDescricao());
-                pstmt.setInt(3, entidade.getQuantidade());
-                pstmt.setDouble(4, entidade.getValor());
-                pstmt.setString(5, entidade.getUltimaAtualizacao().toString());
-                pstmt.setString(6, entidade.getTipo().name());
-                pstmt.setString(7, entidade.getCodigo());
+                Integer index = 1;
+                pstmt.setString(index++, entidade.getNome());
+                pstmt.setString(index++, entidade.getDescricao());
+                pstmt.setInt(index++, entidade.getQuantidade());
+                pstmt.setDouble(index++, entidade.getValor());
+                pstmt.setString(index++, entidade.getUltimaAtualizacao().toString());
+                pstmt.setString(index++, entidade.getTipo().name());
+                pstmt.setString(index, entidade.getCodigo());
                 pstmt.executeUpdate();
 
                 conn.commit();
@@ -136,7 +126,9 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 if (rs.next()) {
-                    produto = mapearResultSet(rs);
+                    Integer index = 1;
+                    produto = new Produto();
+                    mapearResultSetParaEntidade(produto, rs, index);
                 }
             } catch (SQLException ex) {
                 System.err.println("Não foi possível buscar o produto: " + ex.getMessage());
@@ -162,7 +154,9 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Produto produto = mapearResultSet(rs);
+                    Integer index = 1;
+                    Produto produto = new Produto();
+                    mapearResultSetParaEntidade(produto, rs, index);
                     produtos.add(produto);
                 }
 
@@ -188,7 +182,9 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Produto produto = mapearResultSet(rs);
+                    Integer index = 1;
+                    Produto produto = new Produto();
+                    mapearResultSetParaEntidade(produto, rs, index);
                     produtos.add(produto);
                 }
 
@@ -201,5 +197,18 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
             System.err.println("Não foi possível conectar ao banco de dados: " + ex.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public int mapearResultSetParaEntidade(Produto entidade, ResultSet rs, Integer index) throws SQLException {
+        entidade.setCodigo(rs.getString(index++));
+        entidade.setNome(rs.getString(index++));
+        entidade.setDescricao(rs.getString(index++));
+        entidade.setQuantidade(rs.getInt(index++));
+        entidade.setValor(rs.getDouble(index++));
+        entidade.setUltimaAtualizacao(LocalDateTime.parse(rs.getString(index++)));
+        entidade.setTipo(Produto.TipoProduto.valueOf(rs.getString(index++)));
+
+        return index;
     }
 }

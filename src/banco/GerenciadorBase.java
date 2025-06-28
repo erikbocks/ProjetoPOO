@@ -2,6 +2,7 @@ package banco;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -32,6 +33,16 @@ public interface GerenciadorBase<T> {
      * @param entidade a entidade a ser removida.
      */
     void excluir(T entidade);
+
+    /**
+     * Faz o mapeamento dos campos do ResultSet para a entidade.
+     * @param rs o ResultSet retornado da consulta no banco.
+     * @param entidade a entidade a ser populada.
+     * @param index o índice da coluna no ResultSet.
+     * @return o índice atual do ResultSet
+     * @throws SQLException caso a coluna a ser consultada não exista.
+     */
+    int mapearResultSetParaEntidade(T entidade, ResultSet rs, Integer index) throws SQLException;
 
     default Connection getConnectionWithFKEnabled() throws SQLException {
         Connection conn = DriverManager.getConnection(GerenciadorBase.STRING_CONEXAO);

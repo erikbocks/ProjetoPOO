@@ -24,7 +24,12 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                cliente = mapearResultSetParaCliente(rs);
+                Integer index = 1;
+                cliente = new Cliente();
+                index = mapearResultSetParaEntidade(cliente, rs, index);
+
+                Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                cliente.setEndereco(endereco);
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar cliente por CPF: " + e.getMessage());
@@ -69,7 +74,6 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             } catch (SQLException e) {
                 System.err.println("Erro ao atualizar endereço de cliente: " + e.getMessage());
                 conn.rollback();
-                return;
             }
         } catch (SQLException e) {
             System.err.println("Erro conectar com o banco de dados: " + e.getMessage());
@@ -106,7 +110,14 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                clientes.add(mapearResultSetParaCliente(rs));
+                Integer index = 1;
+                Cliente cliente = new Cliente();
+                index = mapearResultSetParaEntidade(cliente, rs, index);
+
+                Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                cliente.setEndereco(endereco);
+
+                clientes.add(cliente);
             }
 
         } catch (SQLException exception) {
@@ -191,7 +202,6 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
             } catch (SQLException e) {
                 System.err.println("Erro ao atualizar cliente: " + e.getMessage());
                 conn.rollback();
-                return;
             }
         } catch (SQLException e) {
             System.err.println("Erro ao conectar com o banco de dados: " + e.getMessage());
@@ -218,25 +228,10 @@ public class GerenciadorClientesImpl implements GerenciadorClientes {
         }
     }
 
-    private Cliente mapearResultSetParaCliente(ResultSet rs) throws SQLException {
-        Cliente cliente = new Cliente();
-        cliente.setCpf(rs.getString(1));
-        cliente.setNome(rs.getString(2));
-        cliente.setEmail(rs.getString(3));
-        cliente.setTelefone(rs.getString(4));
-        cliente.setDataDeCadastro(LocalDateTime.parse(rs.getString(5)));
-        cliente.setDataDeNascimento(LocalDateTime.parse(rs.getString(6)));
-        cliente.setAtivo(rs.getBoolean(7));
+    @Override
+    public int mapearResultSetParaEntidade(Cliente entidade, ResultSet rs, Integer index) throws SQLException {
+        index = mapearDadosUsuarioDoResultSet(entidade, rs, index);
 
-        Endereco endereco = new Endereco();
-        endereco.setId(rs.getInt(8));
-        endereco.setEstado(Endereco.procurarEstadoPorSigla(rs.getString(9)));
-        endereco.setCidade(rs.getString(10));
-        endereco.setRua(rs.getString(11));
-        endereco.setNumero(rs.getInt(12));
-        endereco.setComplemento(rs.getString(13));
-        cliente.setEndereco(endereco);
-
-        return cliente;
+        return index;
     }
 }

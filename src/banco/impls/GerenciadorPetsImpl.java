@@ -19,21 +19,18 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
         List<Pet> pets = new ArrayList<>();
 
         try (var conn = getConnectionWithFKEnabled()) {
-            String sql = "SELECT p.* FROM pets p WHERE p.tutor = ?";
+            String sql = "SELECT p.*, c.nome FROM pets p INNER JOIN clientes c on c.cpf = p.tutor WHERE p.tutor = ? ";
             try (var preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setString(1, cpfTutor);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
+                    Integer index = 1;
                     Pet pet = new Pet();
-                    pet.setId(resultSet.getInt(1));
-                    pet.setNome(resultSet.getString(2));
-                    pet.setEspecie(Pet.Especie.valueOf(resultSet.getString(3)));
-                    pet.setDataDeNascimento(LocalDateTime.parse(resultSet.getString(4)));
-                    pet.setRaca(resultSet.getString(5));
-                    pet.setSexo(Pet.Sexo.valueOf(resultSet.getString(6)));
+                    index = mapearResultSetParaEntidade(pet, resultSet, index);
 
                     Cliente cliente = new Cliente();
-                    cliente.setCpf(cpfTutor);
+                    cliente.setCpf(resultSet.getString(index++));
+                    cliente.setNome(resultSet.getString(index));
 
                     pet.setTutor(cliente);
                     pets.add(pet);
@@ -50,10 +47,11 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                     ResultSet rs = preparedStatementObs.executeQuery();
 
                     while (rs.next()) {
+                        Integer index = 1;
                         ObservacaoPet observacao = new ObservacaoPet();
-                        observacao.setId(rs.getInt(1));
-                        observacao.setPetId(rs.getInt(2));
-                        observacao.setObservacao(rs.getString(3));
+                        observacao.setId(rs.getInt(index++));
+                        observacao.setPetId(rs.getInt(index++));
+                        observacao.setObservacao(rs.getString(index++));
                         pet.adicionarObservacao(observacao);
                     }
                 }
@@ -76,11 +74,13 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
             try (var preparedStatement = conn.prepareStatement(sql)) {
                 for (ObservacaoPet obs : observacoes) {
-                    preparedStatement.setInt(1, pet.getId());
-                    preparedStatement.setString(2, obs.getObservacao());
+                    Integer index = 1;
+                    preparedStatement.setInt(index++, pet.getId());
+                    preparedStatement.setString(index, obs.getObservacao());
                     preparedStatement.addBatch();
                 }
                 preparedStatement.executeBatch();
+
                 conn.commit();
             } catch (SQLException ex) {
                 System.out.println("Erro ao inserir observações do pet: " + ex.getMessage());
@@ -100,17 +100,13 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
             try (var preparedStatement = conn.prepareStatement(sql)) {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
+                    Integer index = 1;
                     Pet pet = new Pet();
-                    pet.setId(resultSet.getInt(1));
-                    pet.setNome(resultSet.getString(2));
-                    pet.setEspecie(Pet.Especie.valueOf(resultSet.getString(3)));
-                    pet.setDataDeNascimento(LocalDateTime.parse(resultSet.getString(4)));
-                    pet.setRaca(resultSet.getString(5));
-                    pet.setSexo(Pet.Sexo.valueOf(resultSet.getString(6)));
+                    index = mapearResultSetParaEntidade(pet, resultSet, index);
 
                     Cliente cliente = new Cliente();
-                    cliente.setCpf(resultSet.getString(7));
-                    cliente.setNome(resultSet.getString(8));
+                    cliente.setCpf(resultSet.getString(index++));
+                    cliente.setNome(resultSet.getString(index));
 
                     pet.setTutor(cliente);
                     pets.add(pet);
@@ -127,10 +123,11 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
                     ResultSet rs = preparedStatementObs.executeQuery();
 
                     while (rs.next()) {
+                        Integer index = 1;
                         ObservacaoPet observacao = new ObservacaoPet();
-                        observacao.setId(rs.getInt(1));
-                        observacao.setPetId(rs.getInt(2));
-                        observacao.setObservacao(rs.getString(3));
+                        observacao.setId(rs.getInt(index++));
+                        observacao.setPetId(rs.getInt(index++));
+                        observacao.setObservacao(rs.getString(index));
                         pet.adicionarObservacao(observacao);
                     }
                 }
@@ -152,12 +149,13 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
             String sql = "INSERT INTO pets (nome, especie, raca, data_nascimento, sexo, tutor) VALUES (?, ?, ?, ?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
-                preparedStatement.setString(1, entidade.getNome());
-                preparedStatement.setString(2, entidade.getEspecie().name());
-                preparedStatement.setString(3, entidade.getRaca());
-                preparedStatement.setString(4, entidade.getDataDeNascimento().toString());
-                preparedStatement.setString(5, entidade.getSexo().name());
-                preparedStatement.setString(6, entidade.getTutor().getCpf());
+                Integer index = 1;
+                preparedStatement.setString(index++, entidade.getNome());
+                preparedStatement.setString(index++, entidade.getEspecie().name());
+                preparedStatement.setString(index++, entidade.getRaca());
+                preparedStatement.setString(index++, entidade.getDataDeNascimento().toString());
+                preparedStatement.setString(index++, entidade.getSexo().name());
+                preparedStatement.setString(index, entidade.getTutor().getCpf());
 
                 preparedStatement.executeUpdate();
 
@@ -175,8 +173,9 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
             for (ObservacaoPet observacao : entidade.getObservacoes()) {
                 String sqlObs = "INSERT INTO observacoes_pets (pet_id, observacao) VALUES (?, ?)";
                 try (var preparedStatementObs = conn.prepareStatement(sqlObs)) {
-                    preparedStatementObs.setInt(1, entidade.getId());
-                    preparedStatementObs.setString(2, observacao.getObservacao());
+                    Integer index = 1;
+                    preparedStatementObs.setInt(index++, entidade.getId());
+                    preparedStatementObs.setString(index, observacao.getObservacao());
                     preparedStatementObs.executeUpdate();
                 } catch (SQLException ex) {
                     System.err.println("Erro ao inserir observação do pet: " + ex.getMessage());
@@ -201,12 +200,13 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
 
             String sql = "UPDATE pets SET nome = ?, especie = ?, raca = ?, data_nascimento = ?, sexo = ? WHERE id = ?";
             try (var preparedStatement = conn.prepareStatement(sql)) {
-                preparedStatement.setString(1, entidade.getNome());
-                preparedStatement.setString(2, entidade.getEspecie().name());
-                preparedStatement.setString(3, entidade.getRaca());
-                preparedStatement.setString(4, entidade.getDataDeNascimento().toString());
-                preparedStatement.setString(5, entidade.getSexo().name());
-                preparedStatement.setInt(6, entidade.getId());
+                Integer index = 1;
+                preparedStatement.setString(index++, entidade.getNome());
+                preparedStatement.setString(index++, entidade.getEspecie().name());
+                preparedStatement.setString(index++, entidade.getRaca());
+                preparedStatement.setString(index++, entidade.getDataDeNascimento().toString());
+                preparedStatement.setString(index++, entidade.getSexo().name());
+                preparedStatement.setInt(index, entidade.getId());
 
                 preparedStatement.executeUpdate();
             } catch (SQLException ex) {
@@ -261,5 +261,17 @@ public class GerenciadorPetsImpl implements GerenciadorPets {
         } catch (SQLException e) {
             System.out.println("Não foi possível excluir a observação do pet: " + e.getMessage());
         }
+    }
+
+    @Override
+    public int mapearResultSetParaEntidade(Pet entidade, ResultSet rs, Integer index) throws SQLException {
+        entidade.setId(rs.getInt(index++));
+        entidade.setNome(rs.getString(index++));
+        entidade.setEspecie(Pet.Especie.valueOf(rs.getString(index++)));
+        entidade.setDataDeNascimento(LocalDateTime.parse(rs.getString(index++)));
+        entidade.setRaca(rs.getString(index++));
+        entidade.setSexo(Pet.Sexo.valueOf(rs.getString(index++)));
+
+        return index;
     }
 }

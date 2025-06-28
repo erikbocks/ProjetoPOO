@@ -5,7 +5,9 @@ import entidades.Endereco;
 import entidades.Veterinario;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
@@ -63,7 +65,30 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
 
     @Override
     public List<Veterinario> listarTodos() {
-        return List.of();
+        List<Veterinario> veterinarios = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlListarTodos = "SELECT * FROM veterinarios v INNER JOIN enderecos_veterinarios ev ON v.cpf = ev.cpf_veterinario";
+            try (var pstmt = conn.prepareStatement(sqlListarTodos)) {
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    Integer index = 1;
+                    Veterinario veterinario = new Veterinario();
+                    index = mapearResultSetParaEntidade(veterinario, rs, index);
+
+                    Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                    veterinario.setEndereco(endereco);
+
+                    veterinarios.add(veterinario);
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
+            return null;
+        }
+
+        return veterinarios;
     }
 
     @Override
@@ -121,5 +146,14 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
     @Override
     public void excluir(Veterinario entidade) {
 
+    }
+
+    @Override
+    public int mapearResultSetParaEntidade(Veterinario entidade, ResultSet rs, Integer index) throws SQLException {
+        index = mapearDadosUsuarioDoResultSet(entidade, rs, index);
+        entidade.setEspecialidade(rs.getString(index++));
+        entidade.setCRMV(rs.getString(index++));
+
+        return index;
     }
 }

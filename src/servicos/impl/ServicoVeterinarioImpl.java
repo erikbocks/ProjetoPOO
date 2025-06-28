@@ -7,6 +7,7 @@ import servicos.Leitor;
 import servicos.ServicoVeterinario;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ServicoVeterinarioImpl implements ServicoVeterinario {
     private Leitor leitor;
@@ -104,7 +105,16 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
 
     @Override
     public void listarVeterinarios() {
-
+        List<Veterinario> veterinarios = gerenciadorVeterinarios.listarTodos();
+        System.out.println("=================================== LISTA DE VETERINÁRIOS ===================================");
+        if (veterinarios.isEmpty()) {
+            System.out.println("Nenhum veterinário cadastrado.");
+        } else {
+            for (Veterinario veterinario : veterinarios) {
+                System.out.println(veterinario);
+            }
+        }
+        System.out.println("===============================================================================================");
     }
 
     @Override

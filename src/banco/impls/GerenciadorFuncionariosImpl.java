@@ -22,7 +22,12 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                funcionario = mapearResultSetParaFuncionario(rs);
+                Integer index = 1;
+                funcionario = new Funcionario();
+                index = mapearResultSetParaEntidade(funcionario, rs, index);
+
+                Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                funcionario.setEndereco(endereco);
             }
 
             return funcionario;
@@ -106,7 +111,13 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Funcionario funcionario = mapearResultSetParaFuncionario(rs);
+                Integer index = 1;
+                Funcionario funcionario = new Funcionario();
+                index = mapearResultSetParaEntidade(funcionario, rs, index);
+
+                Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                funcionario.setEndereco(endereco);
+
                 funcionarios.add(funcionario);
             }
         } catch (SQLException e) {
@@ -223,27 +234,11 @@ public class GerenciadorFuncionariosImpl implements GerenciadorFuncionarios {
         }
     }
 
-    private Funcionario mapearResultSetParaFuncionario(ResultSet rs) throws SQLException {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setCpf(rs.getString(1));
-        funcionario.setNome(rs.getString(2));
-        funcionario.setEmail(rs.getString(3));
-        funcionario.setTelefone(rs.getString(4));
-        funcionario.setDataDeCadastro(LocalDateTime.parse(rs.getString(5)));
-        funcionario.setDataDeNascimento(LocalDateTime.parse(rs.getString(6)));
-        funcionario.setAtivo(rs.getBoolean(7));
-        funcionario.setSenha(rs.getString(8));
+    @Override
+    public int mapearResultSetParaEntidade(Funcionario entidade, ResultSet rs, Integer index) throws SQLException {
+        index = mapearDadosUsuarioDoResultSet(entidade, rs, index);
+        entidade.setSenha(rs.getString(index++));
 
-        Endereco endereco = new Endereco();
-        endereco.setId(rs.getInt(9));
-        endereco.setEstado(Endereco.procurarEstadoPorSigla(rs.getString(10)));
-        endereco.setCidade(rs.getString(11));
-        endereco.setRua(rs.getString(12));
-        endereco.setNumero(rs.getInt(13));
-        endereco.setComplemento(rs.getString(14));
-
-        funcionario.setEndereco(endereco);
-
-        return funcionario;
+        return index;
     }
 }
