@@ -13,6 +13,27 @@ import java.util.List;
 public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
     @Override
     public Veterinario buscarPorCRMV(String crmv) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscarPorCRMV = "SELECT * FROM veterinarios v INNER JOIN enderecos_veterinarios ev ON v.cpf = ev.cpf_veterinario WHERE v.crmv = ?";
+            try (var pstmt = conn.prepareStatement(sqlBuscarPorCRMV)) {
+                pstmt.setString(1, crmv);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    int index = 1;
+                    Veterinario veterinario = new Veterinario();
+                    index = mapearResultSetParaEntidade(veterinario, rs, index);
+
+                    Endereco endereco = mapearResultSetParaEndereco(rs, index);
+                    veterinario.setEndereco(endereco);
+
+                    return veterinario;
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
+        }
+
         return null;
     }
 
@@ -110,7 +131,22 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
 
     @Override
     public void desativar(String cpf) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlDesativar = "UPDATE veterinarios SET ativo = false WHERE cpf = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDesativar)) {
+                pstmt.setString(1, cpf);
+                pstmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                System.err.println("Erro ao desativar veterinário: " + e.getMessage());
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao estabelecer conexão com o banco de dados: " + e.getMessage());
+        }
     }
 
     @Override
@@ -241,7 +277,23 @@ public class GerenciadorVeterinariosImpl implements GerenciadorVeterinarios {
 
     @Override
     public void excluir(Veterinario entidade) {
+        try (var conn = getConnectionWithFKEnabled()) {
+            conn.setAutoCommit(false);
 
+            String sqlExcluirVeterinario = "DELETE FROM veterinarios WHERE cpf = ?";
+            try (var stmt = conn.prepareStatement(sqlExcluirVeterinario)) {
+                stmt.setString(1, entidade.getCpf());
+                stmt.executeUpdate();
+            } catch (SQLException ex) {
+                conn.rollback();
+                System.out.println("Erro ao excluir veterinário: " + ex.getMessage());
+                return;
+            }
+
+            conn.commit();
+        } catch (Exception e) {
+            System.out.println("Erro ao estabelecer conexão com o banco de dados: " + e.getMessage());
+        }
     }
 
     @Override

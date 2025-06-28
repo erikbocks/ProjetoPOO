@@ -143,7 +143,18 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
 
     @Override
     public void buscarVeterinarioPorCRMV() {
+        System.out.println("Boas vindas à busca de veterinário por CRMV!");
 
+        String crmv = leitor.lerCRMV("Digite o CRMV do veterinário que deseja buscar");
+        Veterinario veterinario = gerenciadorVeterinarios.buscarPorCRMV(crmv);
+
+        if (veterinario == null) {
+            System.err.println("Veterinário não encontrado com o CRMV: " + crmv);
+            return;
+        }
+
+        System.out.println("Veterinário encontrado.");
+        System.out.println(veterinario);
     }
 
     @Override
@@ -226,11 +237,37 @@ public class ServicoVeterinarioImpl implements ServicoVeterinario {
 
     @Override
     public void desativarVeterinario() {
+        System.out.println("Boas vindas a desativação de veterinário!");
 
+        String cpf = leitor.lerCPF("Digite o CPF do veterinário que deseja desativar");
+        Veterinario veterinario = gerenciadorVeterinarios.buscarPorCpf(cpf);
+
+        if (veterinario == null) {
+            System.err.println("Veterinário não encontrado com o CPF: " + cpf);
+            return;
+        }
+
+        gerenciadorVeterinarios.desativar(veterinario.getCpf());
+        System.out.println("Veterinário desativado com sucesso!");
     }
 
     @Override
     public void excluirVeterinario() {
+        System.out.println("Boas vindas à exclusão de veterinário!");
 
+        String cpf = leitor.lerCPF("Digite o CPF do veterinário que deseja excluir");
+        Veterinario veterinario = gerenciadorVeterinarios.buscarPorCpf(cpf);
+
+        if (veterinario == null) {
+            System.err.println("Veterinário não encontrado com o CPF: " + cpf);
+            return;
+        }
+        boolean confirmacao = leitor.lerBoolean("Tem certeza que deseja excluir o veterinário");
+        if (confirmacao) {
+            gerenciadorVeterinarios.excluir(veterinario);
+            System.out.println("Veterinário excluído com sucesso!");
+        } else {
+            System.out.println("Exclusão cancelada.");
+        }
     }
 }
