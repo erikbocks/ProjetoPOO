@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS consultas (
 	pet_id INTEGER NOT NULL,
 	cpf_veterinario TEXT NOT NULL,
 	data_consulta TEXT NOT NULL,
-    data_fechamento TEXT NOT NULL,
+    data_fechamento TEXT,
 	status TEXT NOT NULL,
 	FOREIGN KEY (pet_id) REFERENCES pets(id),
 	FOREIGN KEY (cpf_veterinario) REFERENCES veterinarios(cpf)

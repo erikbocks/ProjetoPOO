@@ -1,14 +1,14 @@
 import banco.impls.GerenciadorClientesImpl;
+import banco.impls.GerenciadorConsultasImpl;
 import banco.impls.GerenciadorFuncionariosImpl;
-import banco.impls.GerenciadorProdutosImpl;
 import banco.impls.GerenciadorPetsImpl;
+import banco.impls.GerenciadorProdutosImpl;
 import banco.impls.GerenciadorVeterinariosImpl;
 import entidades.Cliente;
 import entidades.Consulta;
 import entidades.Endereco;
 import entidades.Funcionario;
 import entidades.ItemVenda;
-import entidades.Pet;
 import entidades.Produto;
 import entidades.Prontuario;
 import entidades.Usuario;
@@ -16,14 +16,16 @@ import entidades.Venda;
 import entidades.Veterinario;
 import servicos.Leitor;
 import servicos.ServicoCliente;
+import servicos.ServicoConsulta;
 import servicos.ServicoFuncionario;
-import servicos.ServicoProduto;
 import servicos.ServicoPet;
+import servicos.ServicoProduto;
 import servicos.ServicoVeterinario;
 import servicos.impl.ServicoClienteImpl;
+import servicos.impl.ServicoConsultaImpl;
 import servicos.impl.ServicoFuncionarioImpl;
-import servicos.impl.ServicoProdutoImpl;
 import servicos.impl.ServicoPetImpl;
+import servicos.impl.ServicoProdutoImpl;
 import servicos.impl.ServicoVeterinarioImpl;
 
 import java.time.LocalDateTime;
@@ -39,7 +41,7 @@ public class Principal {
     private ServicoPet servicoPet = new ServicoPetImpl(leitor, new GerenciadorPetsImpl(), new GerenciadorClientesImpl());
     private ServicoVeterinario servicoVeterinario = new ServicoVeterinarioImpl(leitor, new GerenciadorVeterinariosImpl());
     public List<Venda> vendas = new ArrayList<>();
-    public List<Consulta> consultas = new ArrayList<>();
+    private ServicoConsulta servicoConsulta = new ServicoConsultaImpl(leitor, new GerenciadorConsultasImpl(), new GerenciadorPetsImpl(), new GerenciadorClientesImpl(), new GerenciadorVeterinariosImpl());
     public List<Prontuario> prontuarios = new ArrayList<>();
 
     public void executar() {
@@ -79,6 +81,9 @@ public class Principal {
                     break;
                 case 5:
                     servicoVeterinario.mostrarMenu();
+                    break;
+                case 6:
+                    servicoConsulta.mostrarMenu();
                     break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
@@ -199,69 +204,6 @@ public class Principal {
         Veterinario novoVeterinario = new Veterinario(cpf, celular, dataDeNascimento, email, nome, endereco, especialidade, CRMV);
     }
 
-    private void cadastrarConsulta() {
-        System.out.println("Boas vindas ao cadastro de consultas!");
-
-        Funcionario funcionario = autenticarFuncionario();
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return;
-        }
-
-        String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
-
-        Cliente cliente = null;
-
-        if (cliente == null) {
-            System.err.println("Cliente não encontrado. Tente novamente.");
-            return;
-        }
-
-        String cpfDoVeterinario = leitor.lerCPF("Digite o CPF do veterinário");
-
-        Veterinario veterinario = null;
-
-        if (veterinario == null) {
-            System.err.println("Veterinário não encontrado. Tente novamente.");
-            return;
-        }
-
-        List<Pet> petsDoCliente = null;
-
-        Pet petSelecionado;
-
-        if (petsDoCliente.size() == 1) {
-            petSelecionado = petsDoCliente.stream().findFirst().get();
-        } else {
-            System.out.println("Selecione o pet:");
-
-            for (int i = 0; i < petsDoCliente.size(); i++) {
-                System.out.println((i + 1) + ". " + petsDoCliente.get(i).getNome());
-            }
-
-            int opcaoPet = leitor.lerInt("Digite o número do pet");
-
-            if (opcaoPet > petsDoCliente.size() || opcaoPet < 1) {
-                System.err.println("Opção inválida. Tente novamente.");
-                return;
-            }
-
-            petSelecionado = petsDoCliente.get(opcaoPet - 1);
-        }
-
-        if (petSelecionado == null) {
-            System.out.println("Pet não encontrado. Tente novamente.");
-            return;
-        }
-
-        LocalDateTime data = leitor.lerData("Digite a data da consulta");
-
-        System.out.println("Consulta agendada com sucesso!");
-        Consulta novaConsulta = new Consulta(petSelecionado, veterinario, data);
-        consultas.add(novaConsulta);
-    }
-
     private void gerarProntuario() {
         System.out.println("Boas vindas à geração de Prontuário!");
 
@@ -272,10 +214,9 @@ public class Principal {
             return;
         }
 
-        listarConsultasEmAberto();
         String codigoDaConsulta = leitor.lerString("Digite o código da consulta escolhida");
 
-        Optional<Consulta> possivelConsulta = consultas.stream().filter(c -> c.getCodigo().equals(codigoDaConsulta) && c.getStatus().equals(Consulta.Status.ABERTA)).findFirst();
+        Optional<Consulta> possivelConsulta = Optional.empty();
 
         if (possivelConsulta.isEmpty()) {
             System.err.println("Consulta não encontrada. Tente novamente.");
@@ -283,11 +224,9 @@ public class Principal {
         }
 
         Consulta consulta = possivelConsulta.get();
-        int indiceConsulta = consultas.indexOf(consulta);
 
         Prontuario prontuario = consulta.gerarProntuario();
 
-        consultas.set(indiceConsulta, consulta);
         prontuarios.add(prontuario);
     }
 
@@ -322,32 +261,6 @@ public class Principal {
         System.out.println("=========== LISTA DE PRONTUÁRIOS =============");
         prontuarios.forEach(System.out::println);
         System.out.println("===============================================");
-    }
-
-    private void listarConsultas() {
-        System.out.println("""
-                =========== STATUS DE CONSULTAS ============
-                ABERTA
-                FINALIZADA
-                CANCELADA
-                ============================================
-                """);
-        String statusSelecionado = leitor.lerString("Digite o status da consulta:");
-        Consulta.Status status = Consulta.procurarStatusPorNome(statusSelecionado);
-
-        System.out.println("=========== LISTA DE CONSULTAS =============");
-        if (statusSelecionado.equalsIgnoreCase("todos")) {
-            consultas.forEach(System.out::println);
-        } else {
-            consultas.stream().filter(c -> c.getStatus().equals(status)).forEach(System.out::println);
-        }
-        System.out.println("============================================");
-    }
-
-    private void listarConsultasEmAberto() {
-        System.out.println("=========== LISTA DE CONSULTAS =============");
-        consultas.stream().filter(c -> c.getStatus() == Consulta.Status.ABERTA).forEach(System.out::println);
-        System.out.println("============================================");
     }
 
     /**

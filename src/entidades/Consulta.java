@@ -2,16 +2,21 @@ package entidades;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class Consulta {
     private String codigo;
     private Pet pet;
     private Veterinario veterinario;
     private LocalDateTime data;
+    private LocalDateTime dataFechamento;
     private Status status;
 
+    public Consulta() {
+    }
+
     public Consulta(Pet pet, Veterinario veterinario, LocalDateTime data) {
-        this.codigo = String.valueOf((int) (Math.random() * 1001));
+        this.codigo = UUID.randomUUID().toString().split("-")[0];
         this.pet = pet;
         this.veterinario = veterinario;
         this.data = data;
@@ -36,6 +41,22 @@ public class Consulta {
         return codigo;
     }
 
+    public Pet getPet() {
+        return pet;
+    }
+
+    public Veterinario getVeterinario() {
+        return veterinario;
+    }
+
+    public LocalDateTime getData() {
+        return data;
+    }
+
+    public LocalDateTime getDataFechamento() {
+        return dataFechamento;
+    }
+
     public Prontuario gerarProntuario() {
         System.out.println("Gerando prontuário...");
 
@@ -52,6 +73,30 @@ public class Consulta {
         System.out.println("=======================================");
 
         return new Prontuario(this.codigo, this.pet, this.veterinario, this.data, dataFechamento, this.status);
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
+    }
+
+    public void setVeterinario(Veterinario veterinario) {
+        this.veterinario = veterinario;
+    }
+
+    public void setData(LocalDateTime data) {
+        this.data = data;
+    }
+
+    public void setDataFechamento(LocalDateTime dataFechamento) {
+        this.dataFechamento = dataFechamento;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public enum Status {
