@@ -157,7 +157,7 @@ public class ServicoVendaImpl implements ServicoVenda {
 
         gerenciadorVendas.fecharVenda(venda);
 
-        System.out.println("Venda fechada com sucesso!");
+        System.out.println("Venda cadastrada com sucesso!");
         System.out.println("==========================");
         System.out.println("Código da venda: " + venda.getCodigo());
         System.out.println("Valor total: R$ " + venda.getValor());
