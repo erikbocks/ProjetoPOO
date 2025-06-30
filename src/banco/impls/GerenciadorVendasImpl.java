@@ -165,7 +165,54 @@ public class GerenciadorVendasImpl implements GerenciadorVendas {
 
     @Override
     public List<Venda> listarVendasPorCliente(String cpfCliente) {
-        return List.of();
+        try (var conn = getConnectionWithFKEnabled()) {
+            List<Venda> vendas = new ArrayList<>();
+
+            String sql = "SELECT v.*, c.nome, f.nome FROM vendas v INNER JOIN clientes c on v.cpf_cliente = c.cpf INNER JOIN funcionarios f on v.funcionario_responsavel = f.cpf WHERE cpf_cliente = ?";
+            try (var pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, cpfCliente);
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    int index = 1;
+                    Venda venda = new Venda();
+
+                    index = mapearResultSetParaEntidade(venda, rs, index);
+                    venda.getCliente().setNome(rs.getString(index++));
+                    venda.getResponsavel().setNome(rs.getString(index));
+
+                    vendas.add(venda);
+                }
+            } catch (SQLException ex) {
+                System.err.println("Erro ao listar vendas: " + ex.getMessage());
+                return null;
+            }
+
+            for (Venda venda : vendas) {
+                String sqlItens = "SELECT * FROM produtos_vendas WHERE codigo_venda = ?";
+                try (var pstmtItens = conn.prepareStatement(sqlItens)) {
+                    pstmtItens.setString(1, venda.getCodigo());
+                    ResultSet rsItens = pstmtItens.executeQuery();
+
+                    while (rsItens.next()) {
+                        int index = 1;
+                        ItemVenda item = new ItemVenda();
+                        item.setCodigoProduto(rsItens.getString(index++));
+                        item.setQuantidadeEscolhida(rsItens.getInt(index++));
+                        item.setPrecoUnitario(rsItens.getDouble(index));
+                        venda.getItens().add(item);
+                    }
+                } catch (SQLException ex) {
+                    System.err.println("Erro ao listar itens da venda: " + ex.getMessage());
+                    return null;
+                }
+            }
+
+            return vendas;
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível estabelecer uma conexão com o banco de dados: " + ex.getMessage());
+            return null;
+        }
     }
 
     @Override
