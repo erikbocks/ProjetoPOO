@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class Venda {
     private String codigo;
@@ -36,7 +37,7 @@ public class Venda {
 
     public Venda(LocalDateTime data, Cliente cliente, Funcionario responsavel) {
         this.status = Status.ABERTA;
-        this.codigo = String.valueOf((int) (Math.random() * 1001));
+        this.codigo = UUID.randomUUID().toString().split("-")[0];
         this.valor = 0.0;
         this.data = data;
         this.cliente = cliente;
@@ -44,24 +45,40 @@ public class Venda {
         this.itens = new ArrayList<>();
     }
 
-    public void fecharVenda(List<ItemVenda> itensSelecionados, List<Produto> produtos) {
+    public void fecharVenda(List<ItemVenda> itensSelecionados) {
         this.itens.addAll(itensSelecionados);
 
-        List<String> codigosDeProdutos = this.itens.stream().map(ItemVenda::getCodigoProduto).toList();
-
-        this.valor = produtos.stream().filter(p -> codigosDeProdutos.contains(p.getCodigo())).map(Produto::getValor).reduce(0.0, Double::sum);
+        this.valor = itensSelecionados.stream().mapToDouble(item -> item.getPrecoUnitario() * item.getQuantidadeEscolhida()).sum();
 
         this.status = Status.FECHADA;
-
-        System.out.println("Venda fechada com sucesso!");
-        System.out.println("==========================");
-        System.out.println("Código da venda: " + this.codigo);
-        System.out.println("Valor total: " + this.valor);
-        System.out.println("==========================");
     }
 
     @Override
     public String toString() {
         return "Venda[codigo=%s, valor=%.2f, data=%s, cliente=%s, responsavel=%s, itens=%s, status=%s]".formatted(codigo, valor, data.format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy - HH:mm", Locale.ROOT)), cliente.getNome(), responsavel.getNome(), itens.toString(), status);
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public Double getValor() {
+        return valor;
+    }
+
+    public LocalDateTime getData() {
+        return data;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public Funcionario getResponsavel() {
+        return responsavel;
+    }
+
+    public List<ItemVenda> getItens() {
+        return itens;
     }
 }

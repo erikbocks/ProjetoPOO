@@ -82,6 +82,12 @@ public class ServicoProdutoImpl implements ServicoProduto {
                 
                 ==========================================
                 """, Arrays.toString(Produto.TipoProduto.values())));
+
+        if(tipo == Produto.TipoProduto.SERVICO && quantidade != 1) {
+            System.err.println("Para produtos do tipo SERVIÇO, a quantidade deve ser 1. Cancelando.");
+            return;
+        }
+
         String descricao = leitor.lerString("Digite a descrição do produto (OPCIONAL)");
 
         Produto novoProduto = new Produto(nome, descricao, quantidade, valor, tipo);

@@ -5,7 +5,6 @@ import entidades.Funcionario;
 import java.util.List;
 
 public interface ServicoFuncionario {
-
     /**
      * Mostra o menu de opções.
      */

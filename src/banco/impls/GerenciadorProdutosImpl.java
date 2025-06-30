@@ -200,6 +200,33 @@ public class GerenciadorProdutosImpl implements GerenciadorProdutos {
     }
 
     @Override
+    public List<Produto> listarProdutosDisponiveis() {
+        List<Produto> produtos = new ArrayList<>();
+
+        try (var conn = getConnectionWithFKEnabled()) {
+            String sqlBuscaProdutosDisponiveis = "SELECT * FROM produtos WHERE quantidade > 0;";
+            try (var pstmt = conn.prepareStatement(sqlBuscaProdutosDisponiveis)) {
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    int index = 1;
+                    Produto produto = new Produto();
+                    mapearResultSetParaEntidade(produto, rs, index);
+                    produtos.add(produto);
+                }
+
+                return produtos;
+            } catch (SQLException ex) {
+                System.err.println("Não foi possível buscar os produtos disponíveis: " + ex.getMessage());
+                return null;
+            }
+        } catch (SQLException ex) {
+            System.err.println("Não foi possível conectar ao banco de dados: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    @Override
     public int mapearResultSetParaEntidade(Produto entidade, ResultSet rs, Integer index) throws SQLException {
         entidade.setCodigo(rs.getString(index++));
         entidade.setNome(rs.getString(index++));

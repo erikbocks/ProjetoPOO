@@ -3,32 +3,28 @@ import banco.impls.GerenciadorConsultasImpl;
 import banco.impls.GerenciadorFuncionariosImpl;
 import banco.impls.GerenciadorPetsImpl;
 import banco.impls.GerenciadorProdutosImpl;
+import banco.impls.GerenciadorVendasImpl;
 import banco.impls.GerenciadorVeterinariosImpl;
-import entidades.Cliente;
 import entidades.Consulta;
-import entidades.Endereco;
 import entidades.Funcionario;
-import entidades.ItemVenda;
-import entidades.Produto;
 import entidades.Prontuario;
 import entidades.Usuario;
-import entidades.Venda;
-import entidades.Veterinario;
 import servicos.Leitor;
 import servicos.ServicoCliente;
 import servicos.ServicoConsulta;
 import servicos.ServicoFuncionario;
 import servicos.ServicoPet;
 import servicos.ServicoProduto;
+import servicos.ServicoVenda;
 import servicos.ServicoVeterinario;
 import servicos.impl.ServicoClienteImpl;
 import servicos.impl.ServicoConsultaImpl;
 import servicos.impl.ServicoFuncionarioImpl;
 import servicos.impl.ServicoPetImpl;
 import servicos.impl.ServicoProdutoImpl;
+import servicos.impl.ServicoVendaImpl;
 import servicos.impl.ServicoVeterinarioImpl;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +36,7 @@ public class Principal {
     private ServicoProduto servicoProduto = new ServicoProdutoImpl(leitor, new GerenciadorProdutosImpl());
     private ServicoPet servicoPet = new ServicoPetImpl(leitor, new GerenciadorPetsImpl(), new GerenciadorClientesImpl());
     private ServicoVeterinario servicoVeterinario = new ServicoVeterinarioImpl(leitor, new GerenciadorVeterinariosImpl());
-    public List<Venda> vendas = new ArrayList<>();
+    private ServicoVenda servicoVenda = new ServicoVendaImpl(leitor, new GerenciadorVendasImpl(), new GerenciadorClientesImpl(), new GerenciadorFuncionariosImpl(), new GerenciadorProdutosImpl());
     private ServicoConsulta servicoConsulta = new ServicoConsultaImpl(leitor, new GerenciadorConsultasImpl(), new GerenciadorPetsImpl(), new GerenciadorClientesImpl(), new GerenciadorVeterinariosImpl());
     public List<Prontuario> prontuarios = new ArrayList<>();
 
@@ -85,6 +81,9 @@ public class Principal {
                 case 6:
                     servicoConsulta.mostrarMenu();
                     break;
+                case 7:
+                    servicoVenda.mostrarMenu();
+                    break;
                 default:
                     System.err.println("Opção inválida. Tente novamente.");
                     break;
@@ -102,106 +101,12 @@ public class Principal {
                 4. Produto
                 5. Veterinário
                 6. Consulta
-                7. Prontuário
+                7. Venda
+                8. Prontuário
                 0. Sair do Programa.
                 
                 =================================================================================
                 """);
-    }
-
-    private void cadastrarVenda() {
-        System.out.println("Boas vindas ao cadastro de vendas!");
-
-        Funcionario funcionario = autenticarFuncionario();
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return;
-        }
-
-        String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
-
-        Cliente cliente = null;
-
-        if (cliente == null) {
-            System.out.println("Cliente não encontrado. Tente novamente.");
-            return;
-        }
-
-        LocalDateTime data = leitor.lerData("Digite a data da venda:");
-
-        Venda venda = new Venda(data, cliente, funcionario);
-        List<ItemVenda> itensSelecionados = new ArrayList<>();
-        boolean vendaAberta = true;
-
-        while (vendaAberta) {
-            String codigoDoProduto = leitor.lerString("Digite o nome do produto que deseja adicionar à venda (ou 'sair' para finalizar):");
-
-            if (codigoDoProduto.equalsIgnoreCase("sair") && itensSelecionados.isEmpty()) {
-                System.out.println("Venda não pode ser finalizada sem produtos. Adicione pelo menos um produto.");
-                continue;
-            }
-
-            if (codigoDoProduto.equalsIgnoreCase("sair")) {
-                break;
-            }
-
-            Produto produto = null;
-
-            if (produto == null) {
-                System.out.println("Produto não encontrado. Tente novamente.");
-                continue;
-            }
-
-            System.out.printf("Produto [%s] selecionado!!\n", produto.getNome());
-
-            int quantidade = leitor.lerInt("Digite a quantidade do produto que deseja adicionar à venda:");
-
-            if (produto.getQuantidade() < quantidade) {
-                System.out.println("Quantidade solicitada maior que a disponível. Tente novamente.");
-                continue;
-            }
-
-            itensSelecionados.add(new ItemVenda(quantidade, produto.getCodigo()));
-            produto.atualizarEstoque(quantidade);
-
-            vendaAberta = leitor.lerBoolean("Deseja adicionar mais produtos à venda");
-        }
-
-        venda.fecharVenda(itensSelecionados, null);
-        vendas.add(venda);
-    }
-
-    private void cadastrarVeterinario() {
-
-
-        Funcionario funcionario = autenticarFuncionario();
-
-        if (funcionario == null) {
-            System.out.println("Funcionário não encontrado. Tente novamente.");
-            return;
-        }
-
-        String cpf;
-        while (true) {
-            cpf = leitor.lerCPF("Digite o CPF do veterinário");
-
-            if (cpfCadastrado(cpf, null)) {
-                System.err.println("CPF já cadastrado. Tente novamente.");
-            } else {
-                break;
-            }
-        }
-
-        String celular = leitor.lerCelular("Digite o celular do veterinário");
-        LocalDateTime dataDeNascimento = leitor.lerData("Digite a data de nascimento do veterinário");
-        String nome = leitor.lerString("Digite o nome do veterinário");
-        String email = leitor.lerString("Digite o email do veterinário");
-        String especialidade = leitor.lerString("Digite a especialidade do veterinário");
-        String CRMV = leitor.lerCRMV("Digite o CRMV do veterinário");
-        Endereco endereco = leitor.lerEndereco("Digite o endereço do veterinário");
-
-        Veterinario novoVeterinario = new Veterinario(cpf, celular, dataDeNascimento, email, nome, endereco, especialidade, CRMV);
     }
 
     private void gerarProntuario() {
@@ -228,33 +133,6 @@ public class Principal {
         Prontuario prontuario = consulta.gerarProntuario();
 
         prontuarios.add(prontuario);
-    }
-
-    private void listarVendas() {
-        System.out.println("""
-                =========== STATUS DE VENDA =============
-                ABERTA
-                FECHADA
-                CANCELADA
-                TODOS
-                =========================================
-                """);
-
-        String statusSelecionado = leitor.lerString("Digite o status da venda:");
-        Venda.Status status = Venda.procurarStatusPorNome(statusSelecionado);
-
-        if (status == null && !statusSelecionado.equalsIgnoreCase("todos")) {
-            System.err.println("Status inválido. Tente novamente.");
-            return;
-        }
-
-        System.out.println("=========== LISTA DE VENDAS =============");
-        if (statusSelecionado.equalsIgnoreCase("todos")) {
-            vendas.forEach(System.out::println);
-        } else {
-            vendas.stream().filter(v -> v.getStatus().equals(status)).forEach(System.out::println);
-        }
-        System.out.println("===========================================");
     }
 
     private void listarProntuarios() {

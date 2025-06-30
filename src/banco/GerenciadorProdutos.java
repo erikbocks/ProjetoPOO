@@ -10,4 +10,6 @@ public interface GerenciadorProdutos extends GerenciadorBase<Produto> {
     List<Produto> listarProdutoContendoPalavra(String palavra);
 
     List<Produto> listarPorTipo(Produto.TipoProduto tipo);
+
+    List<Produto> listarProdutosDisponiveis();
 }
