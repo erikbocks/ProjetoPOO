@@ -151,7 +151,8 @@ public class ServicoVendaImpl implements ServicoVenda {
             vendaAberta = leitor.lerBoolean("Deseja adicionar mais produtos à venda");
         }
 
-        venda.fecharVenda(itensSelecionados);
+        venda.setItens(itensSelecionados);
+        venda.calcularTotal();
 
         gerenciadorVendas.fecharVenda(venda);
 
@@ -164,12 +165,31 @@ public class ServicoVendaImpl implements ServicoVenda {
 
     @Override
     public void listarVendas() {
+        List<Venda> vendas = gerenciadorVendas.listarVendas();
 
+        System.out.println("=========== LISTA DE VENDAS =============");
+        if (vendas.isEmpty()) {
+            System.out.println("Nenhuma venda cadastrada.");
+        } else {
+            vendas.forEach(System.out::println);
+        }
+        System.out.println("===========================================");
     }
 
     @Override
     public void buscarVendaPorCodigo() {
+        String codigoVenda = leitor.lerString("Digite o código da venda que deseja buscar:");
 
+        Venda venda = gerenciadorVendas.buscarVendaPorCodigo(codigoVenda);
+
+        if (venda == null) {
+            System.out.println("Venda não encontrada.");
+            return;
+        }
+
+        System.out.println("=========== DETALHES DA VENDA ============");
+        System.out.println(venda);
+        System.out.println("===========================================");
     }
 
     @Override

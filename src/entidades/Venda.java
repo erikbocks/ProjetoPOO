@@ -35,6 +35,9 @@ public class Venda {
         return null;
     }
 
+    public Venda() {
+    }
+
     public Venda(LocalDateTime data, Cliente cliente, Funcionario responsavel) {
         this.status = Status.ABERTA;
         this.codigo = UUID.randomUUID().toString().split("-")[0];
@@ -45,12 +48,8 @@ public class Venda {
         this.itens = new ArrayList<>();
     }
 
-    public void fecharVenda(List<ItemVenda> itensSelecionados) {
-        this.itens.addAll(itensSelecionados);
-
-        this.valor = itensSelecionados.stream().mapToDouble(item -> item.getPrecoUnitario() * item.getQuantidadeEscolhida()).sum();
-
-        this.status = Status.FECHADA;
+    public void calcularTotal() {
+        this.valor = itens.stream().mapToDouble(item -> item.getPrecoUnitario() * item.getQuantidadeEscolhida()).sum();
     }
 
     @Override
@@ -80,5 +79,33 @@ public class Venda {
 
     public List<ItemVenda> getItens() {
         return itens;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
+
+    public void setData(LocalDateTime data) {
+        this.data = data;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public void setResponsavel(Funcionario responsavel) {
+        this.responsavel = responsavel;
+    }
+
+    public void setItens(List<ItemVenda> itens) {
+        this.itens = itens;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
