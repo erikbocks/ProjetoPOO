@@ -14,6 +14,7 @@ import servicos.ServicoVenda;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ServicoVendaImpl implements ServicoVenda {
@@ -194,54 +195,133 @@ public class ServicoVendaImpl implements ServicoVenda {
 
     @Override
     public void fecharVenda() {
+        System.out.println("Boas vindas ao fechamento de vendas!");
 
+        String codigoVenda = leitor.lerString("Digite o código da venda que deseja fechar:");
+        Venda venda = gerenciadorVendas.buscarVendaPorCodigo(codigoVenda);
+
+        if (venda == null) {
+            System.out.println("Venda não encontrada.");
+            return;
+        }
+
+        if (venda.getStatus() != Venda.Status.ABERTA) {
+            System.out.println("Venda já está fechada ou cancelada.");
+            return;
+        }
+
+        venda.setStatus(Venda.Status.FECHADA);
+
+        gerenciadorVendas.atualizar(venda);
+        System.out.println("Venda fechada com sucesso!");
     }
 
     @Override
     public void cancelarVenda() {
+        System.out.println("Boas vindas ao cancelamento de vendas!");
 
+        String codigoVenda = leitor.lerString("Digite o código da venda que deseja cancelar:");
+        Venda venda = gerenciadorVendas.buscarVendaPorCodigo(codigoVenda);
+
+        if (venda == null) {
+            System.out.println("Venda não encontrada.");
+            return;
+        }
+
+        if (venda.getStatus() != Venda.Status.ABERTA) {
+            System.out.println("Apenas vendas em aberto podem ser canceladas.");
+            return;
+        }
+
+        venda.setStatus(Venda.Status.CANCELADA);
+        gerenciadorVendas.atualizar(venda);
+        System.out.println("Venda cancelada com sucesso!");
     }
 
     @Override
     public void listarVendasPorStatus() {
-        System.out.println("""
+        String statusDigitado = leitor.lerString(String.format("""
                 =========== STATUS DE VENDA =============
-                ABERTA
-                FECHADA
-                CANCELADA
-                TODOS
+                %s
                 =========================================
-                """);
+                """, Arrays.toString(Venda.Status.values())));
 
-        String statusSelecionado = leitor.lerString("Digite o status da venda:");
-        Venda.Status status = Venda.procurarStatusPorNome(statusSelecionado);
+        Venda.Status status = Venda.procurarStatusPorNome(statusDigitado);
 
-        if (status == null && !statusSelecionado.equalsIgnoreCase("todos")) {
+        if (status == null) {
             System.err.println("Status inválido. Tente novamente.");
             return;
         }
 
+        List<Venda> vendas = gerenciadorVendas.listarVendasPorStatus(status);
         System.out.println("=========== LISTA DE VENDAS =============");
-//        if (statusSelecionado.equalsIgnoreCase("todos")) {
-//            vendas.forEach(System.out::println);
-//        } else {
-//            vendas.stream().filter(v -> v.getStatus().equals(status)).forEach(System.out::println);
-//        }
+        if(vendas.isEmpty()) {
+            System.out.println("Nenhuma venda encontrada com o status: " + status);
+        } else {
+            vendas.forEach(System.out::println);
+        }
         System.out.println("===========================================");
     }
 
     @Override
     public void listarVendasPorCliente() {
+        System.out.println("Boas vindas à busca de vendas por cliente!");
 
+        String cpfDoCliente = leitor.lerCPF("Digite o CPF do cliente");
+        Cliente cliente = gerenciadorClientes.buscarPorCpf(cpfDoCliente);
+
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado.");
+            return;
+        }
+
+        List<Venda> vendas = gerenciadorVendas.listarVendasPorCliente(cliente.getCpf());
+
+        System.out.println("=========== LISTA DE VENDAS =============");
+        if (vendas.isEmpty()) {
+            System.out.println("Nenhuma venda encontrada para o cliente: " + cliente.getNome());
+        } else {
+            vendas.forEach(System.out::println);
+        }
+        System.out.println("===========================================");
     }
 
     @Override
     public void listarVendasPorFuncionario() {
+        System.out.println("Boas vindas à busca de vendas por funcionário!");
 
+        String cpfDoFuncionario = leitor.lerCPF("Digite o CPF do funcionário");
+        Funcionario funcionario = gerenciadorFuncionarios.buscarPorCpf(cpfDoFuncionario);
+
+        if (funcionario == null) {
+            System.out.println("Funcionário não encontrado.");
+            return;
+        }
+
+        List<Venda> vendas = gerenciadorVendas.listarVendasPorFuncionario(funcionario.getCpf());
+        System.out.println("=========== LISTA DE VENDAS =============");
+        if (vendas.isEmpty()) {
+            System.out.println("Nenhuma venda encontrada para o funcionário: " + funcionario.getNome());
+        } else {
+            vendas.forEach(System.out::println);
+        }
+        System.out.println("===========================================");
     }
 
     @Override
     public void listarVendasPorData() {
+        System.out.println("Boas vindas à busca de vendas por data!");
 
+         LocalDateTime data = leitor.lerData("Digite a data desejada");
+
+        List<Venda> vendas = gerenciadorVendas.listarVendasPorData(data);
+
+        System.out.println("=========== LISTA DE VENDAS =============");
+        if (vendas.isEmpty()) {
+            System.out.println("Nenhuma venda encontrada para a data: " + data);
+        } else {
+            vendas.forEach(System.out::println);
+        }
+        System.out.println("===========================================");
     }
 }
